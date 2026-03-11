@@ -1,0 +1,20 @@
+
+--- Testing model: aura-asteria-en ---
+Trying with voice parameter: asteria
+❌ Failed for model aura-asteria-en: 404 {"error":{"message":"The model `aura-asteria-en` does not exist or you do not have access to it.","type":"invalid_request_error","code":"model_not_found"}}
+
+--- Testing model: aura-leo-en ---
+Trying with voice parameter: leo
+❌ Failed for model aura-leo-en: 404 {"error":{"message":"The model `aura-leo-en` does not exist or you do not have access to it.","type":"invalid_request_error","code":"model_not_found"}}
+
+--- Testing model: tts-1 ---
+Trying with voice parameter: asteria
+❌ Failed for model tts-1: 404 {"error":{"message":"The model `tts-1` does not exist or you do not have access to it.","type":"invalid_request_error","code":"model_not_found"}}
+
+--- Testing model: playai-tts ---
+Trying with voice parameter: asteria
+❌ Failed for model playai-tts: 400 {"error":{"message":"The model `playai-tts` has been decommissioned and is no longer supported. Please refer to https://console.groq.com/docs/deprecations for a recommendation on which model to use instead.","type":"invalid_request_error","code":"model_decommissioned"}}
+
+--- Testing model: canopylabs/orpheus-v1-english ---
+Trying with voice parameter: asteria
+❌ Failed for model canopylabs/orpheus-v1-english: 400 {"error":{"message":"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english","type":"invalid_request_error","code":"model_terms_required"}}

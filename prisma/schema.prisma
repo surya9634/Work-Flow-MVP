@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── USERS ────────────────────────────────────────────
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  passwordHash       String
+  name               String?
+  businessName       String?
+  industry           String?
+  businessDesc       String?
+  onboardingComplete Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  credits            Int      @default(500)
+  metaAccessToken    String?
+  wabaId             String?
+  googleAccessToken  String?
+  googleRefreshToken String?
+
+  // Relations
+  leads              Lead[]
+  campaigns          Campaign[]
+  agentConfig        AgentConfig?
+  onboardingSessions OnboardingSession[]
+  agents             Agent[]
+}
+
+// ─── ONBOARDING ───────────────────────────────────────
+model OnboardingSession {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id])
+  state               String   @default("STATE_BUSINESS")
+  collectedFields     String   @default("{}")
+  conversationHistory String   @default("[]")
+  confidenceScore     Float    @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// ─── AGENTS ───────────────────────────────────────────
+model Agent {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  name           String
+  status         String   @default("DRAFT")
+  systemPrompt   String?
+  openingScript  String?
+  voiceProfile   String   @default("{}")
+  convTree       String   @default("{}")
+  configSnapshot String   @default("{}")
+  version        Int      @default(1)
+  phoneNumberId  String?
+  whatsappPhoneId String?
+  llmModel       String   @default("llama-3.3-70b-versatile")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  versions        AgentVersion[]
+  callLogs        CallLog[]
+  campaigns       Campaign[]
+  interactionLogs InteractionLog[]
+}
+
+model AgentVersion {
+  id             String   @id @default(cuid())
+  agentId        String
+  agent          Agent    @relation(fields: [agentId], references: [id])
+  version        Int
+  configSnapshot String
+  createdAt      DateTime @default(now())
+}
+
+// ─── LEGACY AGENT CONFIG (for settings panel) ─────────
+model AgentConfig {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  name         String   @default("Alex")
+  voice        String   @default("professional_male")
+  language     String   @default("en")
+  greeting     String?
+  objective    String?
+  tone         String   @default("professional")
+  status       String   @default("DRAFT")
+  systemPrompt String?
+  voiceProfile String?
+  updatedAt    DateTime @updatedAt
+}
+
+// ─── CAMPAIGNS ────────────────────────────────────────
+model Campaign {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  agentId       String?
+  agent         Agent?    @relation(fields: [agentId], references: [id])
+  name          String
+  status        String    @default("DRAFT")
+  type          String    @default("OUTBOUND")
+  objective     String?
+  aiModel       String    @default("llama-3.3-70b-versatile")
+  aiPersonality String?
+  callBehavior  String    @default("{}")
+  schedule      String?
+  leads           Lead[]
+  callLogs        CallLog[]
+  interactionLogs InteractionLog[]
+  createdAt       DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ─── LEADS ────────────────────────────────────────────
+model Lead {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id])
+  name       String
+  phone      String
+  email      String?
+  source     String?
+  status     String    @default("NEW")
+  score      Float     @default(0)
+  lastCall   DateTime?
+  metadata   String?
+  createdAt  DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  callLogs        CallLog[]
+  interactionLogs InteractionLog[]
+}
+
+// ─── CALL LOGS ────────────────────────────────────────
+model CallLog {
+  id           String    @id @default(cuid())
+  leadId       String?
+  lead         Lead?     @relation(fields: [leadId], references: [id])
+  agentId      String?
+  agent        Agent?    @relation(fields: [agentId], references: [id])
+  campaignId   String?
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  duration     Int?
+  status       String?
+  outcome      String?
+  followUpAt   DateTime?
+  recordingUrl String?
+  transcript   String?
+  sentiment    String?
+  createdAt    DateTime  @default(now())
+
+  leadScore LeadScore?
+}
+
+// ─── LEAD SCORES ──────────────────────────────────────
+model LeadScore {
+  id              String   @id @default(cuid())
+  callLogId       String   @unique
+  callLog         CallLog  @relation(fields: [callLogId], references: [id])
+  budget          Float    @default(0)
+  authority       Float    @default(0)
+  needIntensity   Float    @default(0)
+  urgency         Float    @default(0)
+  engagementLevel Float    @default(0)
+  totalScore      Float    @default(0)
+  classification  String   @default("unqualified")
+  createdAt       DateTime @default(now())
+}
+
+// ─── INTEGRATIONS ─────────────────────────────────────
+model Integration {
+  id        String   @id @default(cuid())
+  name      String
+  type      String
+  config    String   @default("{}")
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── PHONE NUMBERS ────────────────────────────────────
+model PhoneNumber {
+  id         String   @id @default(cuid())
+  number     String   @unique
+  provider   String   @default("twilio")
+  status     String   @default("AVAILABLE")
+  assignedTo String?
+  createdAt  DateTime @default(now())
+}
+
+// ─── INTERACTION LOGS (WhatsApp/SMS) ──────────────────
+model InteractionLog {
+  id           String    @id @default(cuid())
+  leadId       String?
+  lead         Lead?     @relation(fields: [leadId], references: [id])
+  agentId      String?
+  agent        Agent?    @relation(fields: [agentId], references: [id])
+  campaignId   String?
+  campaign     Campaign? @relation(fields: [campaignId], references: [id])
+  type         String    @default("WHATSAPP") // SMS, WHATSAPP, EMAIL
+  direction    String    @default("INBOUND")  // INBOUND, OUTBOUND
+  message      String?
+  mediaUrl     String?
+  status       String?
+  createdAt    DateTime  @default(now())
+}

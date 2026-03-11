@@ -1,0 +1,433 @@
+// Removed openai import
+import { groq } from "@/lib/groq"
+import { CalendarService } from "@/lib/services/calendar"
+import { synthesizeSpeech } from "@/lib/tts-server";
+import { Readable } from "stream";
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+
+/**
+ * VOICE RUNTIME ENGINE
+ * 
+ * Real implementations using free services:
+ * - STT: Groq Whisper (whisper-large-v3-turbo) — free tier, uses existing GROQ_API_KEY
+ * - TTS: Google Translate TTS — completely free fallback, no API key
+ * - LLM: Groq (llama-3.3-70b-versatile) — free tier, uses existing GROQ_API_KEY
+ * 
+ * Pipeline: Audio In → STT (Groq Whisper) → Intent → ConvTree → LLM → TTS (Google) → Audio Out
+ */
+
+export interface VoiceEvent {
+    type: "call_start" | "audio_chunk" | "transcript" | "intent" | "response" | "call_end";
+    data: any;
+    timestamp: number;
+}
+
+export interface CallSession {
+    callId: string;
+    agentId: string;
+    leadId: string;
+    startTime: number;
+    transcript: string[];
+    status: "ringing" | "connected" | "ended";
+}
+
+// ─── VOICE MAPPING ──────────────────────────────────
+// Maps voice profile settings to Google TTS language/host configurations
+// Google TTS doesn't support specific voices, but supports accents via host domains
+const VOICE_MAP: Record<string, Record<string, string>> = {
+    male: {
+        professional: "https://translate.google.com",   // US English
+        friendly: "https://translate.google.com.au",    // Australian English
+        casual: "https://translate.google.co.uk",       // UK English
+        assertive: "https://translate.google.co.in",    // Indian English
+    },
+    female: {
+        professional: "https://translate.google.com",   // US English
+        friendly: "https://translate.google.com.au",    // Australian English
+        casual: "https://translate.google.co.uk",       // UK English
+        assertive: "https://translate.google.co.in",    // Indian English
+    },
+};
+
+function resolveVoiceHost(voiceProfile: any): string {
+    const gender = (voiceProfile?.gender || "female").toLowerCase();
+    const tone = (voiceProfile?.tone || "professional").toLowerCase();
+    return VOICE_MAP[gender]?.[tone] || VOICE_MAP.female.professional;
+}
+
+export class VoiceRuntime {
+
+    /**
+     * Initialize a call session.
+     */
+    static createSession(agentId: string, leadId: string): CallSession {
+        return {
+            callId: `call_${Date.now()}`,
+            agentId,
+            leadId,
+            startTime: Date.now(),
+            transcript: [],
+            status: "ringing"
+        };
+    }
+
+    /**
+     * REAL STT — Groq Whisper transcription.
+     * Accepts audio buffer (wav, mp3, webm, m4a, ogg).
+     * Returns transcribed text.
+     */
+    static async processAudio(audioBuffer: Buffer, filename: string = "audio.webm"): Promise<string> {
+        const tempPath = path.join(os.tmpdir(), `stt_${uuidv4()}_${filename}`);
+        try {
+            // Write buffer to a real file so Groq SDK handles it perfectly without Blob encoding issues
+            fs.writeFileSync(tempPath, audioBuffer);
+
+            const transcription = await groq.audio.transcriptions.create({
+                file: fs.createReadStream(tempPath),
+                model: "whisper-large-v3-turbo",
+                language: "en",
+                response_format: "text",
+            });
+
+            // The response is the transcribed text directly
+            const text = typeof transcription === "string"
+                ? transcription
+                : (transcription as any).text || "";
+
+            return text.trim();
+        } catch (error) {
+            console.error("[VoiceRuntime] STT Error:", error);
+            throw new Error(`Speech-to-text failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+        } finally {
+            if (fs.existsSync(tempPath)) {
+                fs.unlinkSync(tempPath);
+            }
+        }
+    }
+
+    /**
+     * Get MIME type from filename extension.
+     */
+    static getMimeType(filename: string): string {
+        const ext = filename.split(".").pop()?.toLowerCase() || "webm";
+        const mimeTypes: Record<string, string> = {
+            webm: "audio/webm",
+            mp3: "audio/mpeg",
+            wav: "audio/wav",
+            m4a: "audio/m4a",
+            ogg: "audio/ogg",
+            mp4: "audio/mp4",
+            mpeg: "audio/mpeg",
+            mpga: "audio/mpeg",
+        };
+        return mimeTypes[ext] || "audio/webm";
+    }
+
+    /**
+     * Detect intent from transcript text.
+     */
+    static detectIntent(text: string): string {
+        const lower = text.toLowerCase();
+        if (lower.includes("yes") || lower.includes("sure") || lower.includes("interested")) return "positive";
+        if (lower.includes("no") || lower.includes("not interested") || lower.includes("busy")) return "negative";
+        if (lower.includes("how much") || lower.includes("price") || lower.includes("cost")) return "objection_price";
+        if (lower.includes("who") || lower.includes("boss") || lower.includes("manager")) return "objection_authority";
+        if (lower.includes("later") || lower.includes("not now") || lower.includes("next month")) return "objection_timing";
+        return "neutral";
+    }
+
+    /**
+     * Route to conversation tree node based on intent.
+     */
+    static routeToNode(intent: string, convTree: any): any {
+        switch (intent) {
+            case "positive":
+                return convTree.qualification_node || convTree.booking_node;
+            case "negative":
+                return convTree.rejection_node;
+            case "objection_price":
+                return convTree.objection_nodes?.price;
+            case "objection_authority":
+                return convTree.objection_nodes?.authority;
+            case "objection_timing":
+                return convTree.objection_nodes?.timing;
+            default:
+                return convTree.qualification_node;
+        }
+    }
+
+    /**
+     * REAL TTS — Edge TTS engine for high-quality human-equivalent voices.
+     * Returns audio buffer.
+     */
+    static async generateSpeech(text: string, voiceProfile: any): Promise<Buffer> {
+        try {
+            console.log(`[VoiceRuntime] Generating speech via Edge-TTS...`);
+            // Voice profile dictates the specific TTS voice, default to Aria (Female US)
+            const voiceId = voiceProfile?.voiceId || 'en-US-AriaNeural';
+
+            // synthesizeSpeech returns a base64 encoded MP3 string
+            const base64Audio = await synthesizeSpeech(text, voiceId);
+
+            // Convert to a raw binary Buffer for the downstream pipeline
+            return Buffer.from(base64Audio, "base64");
+        } catch (error) {
+            console.error("[VoiceRuntime] TTS Error:", error);
+            throw new Error(`Text-to-speech failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
+    }
+
+    /**
+     * Generate an LLM response using Groq, guided by the conversation tree node.
+     * Integrates Function Calling (Tools) to interact with the Calendar.
+     */
+    static async generateLLMResponse(
+        userText: string,
+        systemPrompt: string,
+        nodeStrategy: string,
+        conversationHistory: string[]
+    ): Promise<string> {
+        try {
+            const conversationMessages: any[] = [];
+            for (const line of conversationHistory) {
+                if (line.startsWith("User: ")) {
+                    conversationMessages.push({ role: "user", content: line.slice(6) });
+                } else if (line.startsWith("Agent: ")) {
+                    conversationMessages.push({ role: "assistant", content: line.slice(7) });
+                }
+            }
+
+            // Handle the 'initial greeting' empty buffer trigger
+            if (conversationMessages.length === 0 || conversationMessages[conversationMessages.length - 1].role !== "user") {
+                if (userText && userText !== "[User picked up the phone]") {
+                    conversationMessages.push({ role: "user", content: userText });
+                } else if (userText === "[User picked up the phone]") {
+                    // Provide context that the user answered, so the AI knows to say hello
+                    conversationMessages.push({ role: "user", content: "Hello?" });
+                }
+            }
+
+            const messages: any[] = [
+                { role: "system", content: `${systemPrompt}\n\nKeep your responses extremely brief, 1-2 sentences maximum. Conversational strategy: ${nodeStrategy}` },
+                ...conversationMessages
+            ];
+
+            const tools = [
+                {
+                    type: "function" as const,
+                    function: {
+                        name: "check_availability",
+                        description: "Check available meeting times for a specific day of the week.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                day: {
+                                    type: "string",
+                                    description: "The day of the week (e.g., 'Monday', 'Tuesday')."
+                                }
+                            },
+                            required: ["day"]
+                        }
+                    }
+                },
+                {
+                    type: "function" as const,
+                    function: {
+                        name: "book_meeting",
+                        description: "Book a meeting for the prospect at a specific time.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                name: {
+                                    type: "string",
+                                    description: "The name of the prospect."
+                                },
+                                datetime: {
+                                    type: "string",
+                                    description: "The date and time to book (e.g., 'Monday 10:00 AM')."
+                                }
+                            },
+                            required: ["name", "datetime"]
+                        }
+                    }
+                }
+            ];
+
+            const completion = await groq.chat.completions.create({
+                messages,
+                model: "llama-3.3-70b-versatile",
+                temperature: 0.7,
+                max_tokens: 150,
+                tools: tools,
+                tool_choice: "auto",
+            });
+
+            const topChoice = completion.choices[0];
+
+            // Check if the LLM wants to call a function
+            if (topChoice.message?.tool_calls && topChoice.message.tool_calls.length > 0) {
+                const toolCall = topChoice.message.tool_calls[0];
+                console.log(`[VoiceRuntime] LLM is executing tool: ${toolCall.function.name}`);
+
+                let functionResult = "";
+
+                try {
+                    const args = JSON.parse(toolCall.function.arguments);
+
+                    if (toolCall.function.name === "check_availability") {
+                        const slots = await CalendarService.getAvailableSlots(args.day);
+                        functionResult = slots.length > 0
+                            ? `Available slots on ${args.day}: ${slots.join(", ")}`
+                            : `There are no available slots on ${args.day}.`;
+                    } else if (toolCall.function.name === "book_meeting") {
+                        functionResult = await CalendarService.bookMeeting(args.name, args.datetime);
+                    }
+                } catch (e) {
+                    functionResult = "There was an error accessing the calendar system.";
+                    console.error("[VoiceRuntime] Tool execution error:", e);
+                }
+
+                // Make a second call to the LLM with the function result
+                messages.push(topChoice.message); // Append the assistant's tool request
+                messages.push({
+                    role: "tool",
+                    tool_call_id: toolCall.id,
+                    name: toolCall.function.name,
+                    content: functionResult
+                });
+
+                const secondCompletion = await groq.chat.completions.create({
+                    messages,
+                    model: "llama-3.3-70b-versatile",
+                    temperature: 0.7,
+                    max_tokens: 150,
+                });
+
+                return secondCompletion.choices[0]?.message?.content?.trim() || "I've handled that for you.";
+            }
+
+            return topChoice.message?.content?.trim() || "I understand. Could you tell me more?";
+        } catch (error) {
+            console.error("[VoiceRuntime] LLM Error:", error);
+            return "I understand. Could you tell me more about that?";
+        }
+    }
+
+    /**
+     * Full pipeline: Audio → STT → Intent → LLM → TTS → Audio
+     */
+    static async processTurn(
+        session: CallSession,
+        audioChunk: Buffer,
+        systemPrompt: string,
+        convTree: any,
+        voiceProfile: any
+    ): Promise<{ text: string; audio: Buffer; intent: string; userText: string }> {
+        // 1. STT — Real Groq Whisper transcription (Skip if buffer is empty, e.g., for initial greetings)
+        let userText = "";
+        if (audioChunk.length > 0) {
+            userText = await VoiceRuntime.processAudio(audioChunk, "audio.wav");
+            console.log(`[VoiceRuntime] STT Recognized: "${userText}"`);
+
+            // Filter out Whisper hallucinations generated from phone static
+            const lower = userText.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (["right", "yeah", "thankyou", "you", "ok", ""].includes(lower)) {
+                console.log(`[VoiceRuntime] STT text "${userText}" flagged as hallucination. Discarding.`);
+                return { text: "", audio: Buffer.from(""), intent: "neutral", userText: "" };
+            }
+
+            session.transcript.push(`User: ${userText}`);
+        } else {
+            userText = "[User picked up the phone]";
+        }
+
+        // 2. Intent Detection
+        const intent = VoiceRuntime.detectIntent(userText);
+
+        // 3. Route to conversation tree node
+        const node = VoiceRuntime.routeToNode(intent, convTree);
+        const strategy = node?.response_strategy || "Respond helpfully and naturally.";
+
+        // 4. Generate LLM response (real Groq inference)
+        const responseText = await VoiceRuntime.generateLLMResponse(
+            userText,
+            systemPrompt,
+            strategy,
+            session.transcript
+        );
+        session.transcript.push(`Agent: ${responseText}`);
+
+        // 5. TTS — Real Google TTS synthesis
+        const audio = await VoiceRuntime.generateSpeech(responseText, voiceProfile);
+
+        return { text: responseText, audio, intent, userText };
+    }
+
+    /**
+     * ADVANCED ANALYTICS: LLM-driven post-call analysis.
+     * Analyzes sentiment, detects outcomes, and generates a summary.
+     */
+    static async analyzeCall(transcript: string[], goal: string): Promise<{
+        sentiment: "positive" | "neutral" | "negative";
+        outcome: string;
+        summary: string;
+    }> {
+        if (transcript.length === 0) {
+            return { sentiment: "neutral", outcome: "No conversation", summary: "The call ended before any conversation occurred." };
+        }
+
+        const prompt = `You are a Post-Call Analytics Engine. Analyze this transcript for an AI Sales Call.
+AGENT MISSION: ${goal}
+
+TRANSCRIPT:
+${transcript.join("\n")}
+
+INSTRUCTIONS:
+1. Detect SENTIMENT (positive, neutral, negative).
+2. Detect OUTCOME (e.g., "Meeting Booked", "Bad Timing", "Not Interested", "Price Objection").
+3. Provide a 1-sentence SUMMARY of the conversation.
+
+Return ONLY this JSON:
+{
+  "sentiment": "positive|neutral|negative",
+  "outcome": "Brief phrase",
+  "summary": "1 sentence description"
+}`;
+
+        try {
+            const completion = await groq.chat.completions.create({
+                messages: [{ role: "user", content: prompt }],
+                model: "openai/gpt-oss-120b",
+                temperature: 0.1,
+                response_format: { type: "json_object" }
+            });
+
+            const content = completion.choices[0]?.message?.content || "{}";
+            const parsed = JSON.parse(content);
+
+            return {
+                sentiment: parsed.sentiment || "neutral",
+                outcome: parsed.outcome || "unknown",
+                summary: parsed.summary || "Call summarized successfully."
+            };
+        } catch (e) {
+            console.error("[VoiceRuntime] Analytics Error:", e);
+            return { sentiment: "neutral", outcome: "analysis_failed", summary: "Failed to analyze terminal call data." };
+        }
+    }
+
+    /**
+     * Get available TTS voices (Google TTS just has languages/hosts)
+     */
+    static async getAvailableVoices() {
+        return [
+            { Name: "US English", ShortName: "en-US", Gender: "Female", Locale: "en-US" },
+            { Name: "UK English", ShortName: "en-GB", Gender: "Female", Locale: "en-GB" },
+            { Name: "Australian English", ShortName: "en-AU", Gender: "Female", Locale: "en-AU" },
+            { Name: "Indian English", ShortName: "en-IN", Gender: "Female", Locale: "en-IN" },
+        ];
+    }
+}

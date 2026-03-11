@@ -1,0 +1,159 @@
+
+> workflow-mvp@0.1.0 dev
+> tsx server.ts
+
+GROQ_API_KEY is missing in environment variables.
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\ssrss\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\ssrss\Downloads\Voice-agent-saas-2\package-lock.json
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+> Ready on http://localhost:3000
+> WebSocket server listening on ws://localhost:3000/api/twilio/stream
+ GET / 200 in 2.6s (compile: 2.1s, render: 495ms)
+⚠ Cross origin request detected from b5be-106-219-146-244.ngrok-free.app to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /signup 200 in 755ms (compile: 226ms, render: 529ms)
+ GET /api/auth/session 200 in 2.3s
+ POST /api/auth/_log 200 in 113ms (compile: 38ms, render: 75ms)
+ GET /api/auth/session 200 in 42ms (compile: 17ms, render: 25ms)
+ GET /login 200 in 149ms (compile: 94ms, render: 56ms)
+ GET /api/auth/providers 200 in 39ms (compile: 12ms, render: 26ms)
+ GET /api/auth/csrf 200 in 21ms (compile: 4ms, render: 17ms)
+ POST /api/auth/callback/credentials 200 in 1125ms (compile: 5ms, render: 1121ms)
+ GET /api/auth/session 200 in 42ms (compile: 12ms, render: 30ms)
+ GET /dashboard 200 in 156ms (compile: 108ms, render: 48ms)
+ GET /api/dashboard/stats 200 in 774ms (compile: 112ms, render: 662ms)
+ GET /api/dashboard/stats 200 in 394ms (compile: 4ms, render: 390ms)
+ GET /dashboard/campaigns 200 in 157ms (compile: 103ms, render: 54ms)
+ GET /api/campaigns 200 in 207ms (compile: 85ms, render: 122ms)
+ GET /api/campaigns 200 in 86ms (compile: 3ms, render: 83ms)
+[Voice Dispatch] Attempting dial for lead 919897940269
+[Voice Dispatch] ENV check: accountSid=true, authToken=true, fromNumber=true
+[Voice Dispatch] Dialing TwiML URL: https://b5be-106-219-146-244.ngrok-free.app/api/twilio/outbound?agentId=cmm5b4pzu000a5ysur179on85&leadId=cmm5cibno00145ysu1to4hu31
+[Campaign Activate] Failed to dial voice lead 919897940269: Error: The number +919897940269 is unverified. Trial accounts may only make calls to verified numbers.
+    at async POST (app\api\campaigns\[id]\activate\route.ts:143:42)
+  141 |                             console.log(`[Voice Dispatch] Dialing TwiML URL: ${twimlUrl}`);
+  142 |
+> 143 |                             const call = await client.calls.create({
+      |                                          ^
+  144 |                                 url: twimlUrl,
+  145 |                                 to: lead.phone,
+  146 |                                 from: fromNumber, {
+  status: 400,
+  code: 21219,
+  moreInfo: 'https://www.twilio.com/docs/errors/21219',
+  details: undefined
+}
+[Voice Dispatch] Attempting dial for lead 917817963135
+[Voice Dispatch] ENV check: accountSid=true, authToken=true, fromNumber=true
+[Voice Dispatch] Dialing TwiML URL: https://b5be-106-219-146-244.ngrok-free.app/api/twilio/outbound?agentId=cmm5b4pzu000a5ysur179on85&leadId=cmm5chy5k00125ysurfc9ylji
+[Voice Dispatch] Call successfully queued with SID: CAa79bcff71e6fdf09a58c18ecf82e3b46
+ POST /api/campaigns/cmp_1772222759564/activate 200 in 5.6s (compile: 3.2s, render: 2.4s)
+ GET /api/campaigns 200 in 133ms (compile: 3ms, render: 130ms)
+ POST /api/twilio/outbound?agentId=cmm5b4pzu000a5ysur179on85&leadId=cmm5chy5k00125ysurfc9ylji 200 in 319ms (compile: 212ms, render: 107ms)
+[WebSocket] New connection established from ::1
+[WebSocket] Call connected
+[TwilioCallManager] Stream started. CallSid: CAa79bcff71e6fdf09a58c18ecf82e3b46
+[TwilioCallManager] Loaded Agent: Dhairya, Lead: Surya, Voice: en-US-SteffanNeural
+[TwilioCallManager] Generating custom TTS audio (streaming) for: "Hi There Surya... How have you been doing?..."
+[PythonTTS] Generating speech: en-US-SteffanNeural
+ GET /dashboard/campaigns 200 in 241ms (compile: 5ms, render: 236ms)
+ GET /api/auth/session 200 in 36ms (compile: 20ms, render: 17ms)
+ GET /api/campaigns 200 in 109ms (compile: 4ms, render: 105ms)
+[TwilioCallManager] Finished streaming 29952 bytes of audio to Twilio.
+[TwilioCallManager] Greeting done. Now listening for user speech.
+[TwilioCallManager] Stream stopped.
+[WebSocket] Connection closed.
+ GET /dashboard/sandbox 200 in 216ms (compile: 163ms, render: 53ms)
+ GET /api/agents 200 in 260ms (compile: 89ms, render: 171ms)
+ GET /api/agents 200 in 88ms (compile: 3ms, render: 86ms)
+ POST /api/sandbox/chat 200 in 795ms (compile: 166ms, render: 628ms)
+[TTS API] Generating Realistic Cloud Speech for voice=en-US-SteffanNeural
+[PythonTTS] Generating speech: en-US-SteffanNeural
+ POST /api/sandbox/tts 200 in 2.4s (compile: 105ms, render: 2.3s)
+ GET /dashboard/agents 200 in 138ms (compile: 104ms, render: 33ms)
+ GET /api/agents 200 in 119ms (compile: 4ms, render: 115ms)
+ GET /api/agents 200 in 78ms (compile: 3ms, render: 76ms)
+[TTS API] Generating Realistic Cloud Speech for voice=en-US-SteffanNeural
+[PythonTTS] Generating speech: en-US-SteffanNeural
+ POST /api/sandbox/tts 200 in 2.2s (compile: 1958µs, render: 2.2s)
+[TTS API] Generating Realistic Cloud Speech for voice=en-GB-RyanNeural
+[PythonTTS] Generating speech: en-GB-RyanNeural
+ POST /api/sandbox/tts 200 in 3.9s (compile: 3ms, render: 3.9s)
+ PATCH /api/agents/cmm5b4pzu000a5ysur179on85 200 in 1796ms (compile: 1466ms, render: 331ms)
+ GET /dashboard/campaigns 200 in 35ms (compile: 3ms, render: 32ms)
+ GET /api/campaigns 200 in 78ms (compile: 3ms, render: 75ms)
+ GET /api/campaigns 200 in 67ms (compile: 3ms, render: 64ms)
+ POST /api/campaigns/cmp_1772222759564/reset 200 in 1882ms (compile: 1589ms, render: 292ms)
+ GET /api/campaigns 200 in 68ms (compile: 1983µs, render: 66ms)
+[Voice Dispatch] Attempting dial for lead 919897940269
+[Voice Dispatch] ENV check: accountSid=true, authToken=true, fromNumber=true
+[Voice Dispatch] Dialing TwiML URL: https://b5be-106-219-146-244.ngrok-free.app/api/twilio/outbound?agentId=cmm5b4pzu000a5ysur179on85&leadId=cmm5cibno00145ysu1to4hu31
+[Campaign Activate] Failed to dial voice lead 919897940269: Error: The number +919897940269 is unverified. Trial accounts may only make calls to verified numbers.
+    at async POST (app\api\campaigns\[id]\activate\route.ts:143:42)
+  141 |                             console.log(`[Voice Dispatch] Dialing TwiML URL: ${twimlUrl}`);
+  142 |
+> 143 |                             const call = await client.calls.create({
+      |                                          ^
+  144 |                                 url: twimlUrl,
+  145 |                                 to: lead.phone,
+  146 |                                 from: fromNumber, {
+  status: 400,
+  code: 21219,
+  moreInfo: 'https://www.twilio.com/docs/errors/21219',
+  details: undefined
+}
+[Voice Dispatch] Attempting dial for lead 917817963135
+[Voice Dispatch] ENV check: accountSid=true, authToken=true, fromNumber=true
+[Voice Dispatch] Dialing TwiML URL: https://b5be-106-219-146-244.ngrok-free.app/api/twilio/outbound?agentId=cmm5b4pzu000a5ysur179on85&leadId=cmm5chy5k00125ysurfc9ylji
+[Voice Dispatch] Call successfully queued with SID: CA7a31e889c5199cc43bbf70af38d6e4ef
+ POST /api/campaigns/cmp_1772222759564/activate 200 in 1697ms (compile: 23ms, render: 1674ms)
+ GET /api/campaigns 200 in 72ms (compile: 3ms, render: 69ms)
+ GET /dashboard/campaigns 200 in 67ms (compile: 3ms, render: 65ms)
+ GET /api/auth/session 200 in 39ms (compile: 11ms, render: 28ms)
+ GET /api/campaigns 200 in 72ms (compile: 4ms, render: 68ms)
+ POST /api/twilio/outbound?agentId=cmm5b4pzu000a5ysur179on85&leadId=cmm5chy5k00125ysurfc9ylji 200 in 96ms (compile: 2ms, render: 94ms)
+[WebSocket] New connection established from ::1
+[WebSocket] Call connected
+[TwilioCallManager] Stream started. CallSid: CA7a31e889c5199cc43bbf70af38d6e4ef
+[TwilioCallManager] Loaded Agent: Dhairya, Lead: Surya, Voice: en-GB-RyanNeural
+[TwilioCallManager] Generating custom TTS audio (streaming) for: "Hi There Surya... How have you been doing?..."
+[PythonTTS] Generating speech: en-GB-RyanNeural
+[TwilioCallManager] Finished streaming 32256 bytes of audio to Twilio.
+[TwilioCallManager] Greeting done. Now listening for user speech.
+ GET /dashboard/monitoring 200 in 170ms (compile: 130ms, render: 40ms)
+[Socket.IO] Frontend dashboard client connected: zVY2YUtF-VsOrCxOAAAC
+[TwilioCallManager] Processing 106 audio chunks via STT...
+[VoiceRuntime] STT Error: Error: 401 {"error":{"message":"Invalid API Key","type":"invalid_request_error","code":"invalid_api_key"}}
+    at async VoiceRuntime.processAudio (lib\services\voice-runtime.ts:88:35)
+    at async VoiceRuntime.processTurn (lib\services\voice-runtime.ts:332:24)
+    at async TwilioCallManager.processTurn (lib\twilio\socket-handler.ts:164:28)
+    at async TwilioCallManager.handleIncomingAudio (lib\twilio\socket-handler.ts:127:13) {
+  status: 401,
+  headers: [Object],
+  error: [Object]
+}
+[TwilioCallManager] Turn processing failed: Error: Speech-to-text failed: 401 {"error":{"message":"Invalid API Key","type":"invalid_request_error","code":"invalid_api_key"}}
+    at VoiceRuntime.processAudio (lib\services\voice-runtime.ts:103:19)
+    at async VoiceRuntime.processTurn (lib\services\voice-runtime.ts:332:24)
+    at async TwilioCallManager.processTurn (lib\twilio\socket-handler.ts:164:28)
+    at async TwilioCallManager.handleIncomingAudio (lib\twilio\socket-handler.ts:127:13)
+ GET /dashboard/monitoring 200 in 143ms (compile: 11ms, render: 132ms)
+[Socket.IO] Frontend dashboard client disconnected: zVY2YUtF-VsOrCxOAAAC
+ GET /api/auth/session 200 in 28ms (compile: 13ms, render: 16ms)
+[Socket.IO] Frontend dashboard client connected: H7R79ZzrRiHcQ2HQAAAE
+[TwilioCallManager] Stream stopped.
+[WebSocket] Connection closed.
+ GET /dashboard/monitoring 200 in 115ms (compile: 22ms, render: 93ms)
+[Socket.IO] Frontend dashboard client disconnected: H7R79ZzrRiHcQ2HQAAAE
+ GET /api/auth/session 200 in 28ms (compile: 13ms, render: 15ms)
+[Socket.IO] Frontend dashboard client connected: z0dJOZ8yznL80rBgAAAG
+ GET /dashboard/monitoring 200 in 123ms (compile: 39ms, render: 84ms)
+[Socket.IO] Frontend dashboard client disconnected: z0dJOZ8yznL80rBgAAAG
+ GET /api/auth/session 200 in 34ms (compile: 10ms, render: 25ms)
+[Socket.IO] Frontend dashboard client connected: QXMdP7GM4DgAAGzzAAAI

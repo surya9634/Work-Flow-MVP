@@ -1,0 +1,2 @@
+﻿app/dashboard/campaigns/page.tsx(246,61): error TS2322: Type 'string' is not assignable to type 'never'.
+app/dashboard/page.tsx(192,55): error TS2322: Type 'string' is not assignable to type 'never'.
