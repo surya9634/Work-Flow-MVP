@@ -99,9 +99,9 @@ export default function SettingsPage() {
             <div className="h-2"></div>
 
             {/* WhatsApp Integration (Moved from old page) */}
-            <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-6">
+            <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-4 sm:p-6 overflow-hidden w-full overflow-x-hidden">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#25D366]/20 to-[#128C7E]/10 border border-[#25D366]/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#25D366]/20 to-[#128C7E]/10 border border-[#25D366]/30 flex items-center justify-center shrink-0">
                         <MessageCircle className="h-5 w-5 text-[#25D366]" />
                     </div>
                     <div>
@@ -110,9 +110,9 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 items-start">
+                <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start w-full">
                     {/* Left Info */}
-                    <div className="space-y-6">
+                    <div className="w-full md:w-[45%] space-y-6">
                         <ul className="space-y-5">
                             <li className="flex items-start gap-4">
                                 <div className="min-w-8 min-h-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mt-0.5">
@@ -127,18 +127,18 @@ export default function SettingsPage() {
                                 <div className="min-w-8 min-h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mt-0.5">
                                     <KeyRound className="w-4 h-4 text-blue-500" />
                                 </div>
-                                <div className="space-y-1">
+                                <div className="space-y-1 w-full">
                                     <p className="font-medium text-[14px] text-white leading-none">System User Access Token</p>
-                                    <p className="text-zinc-500 text-xs mt-1">A permanent token with <code className="bg-zinc-800 px-1 rounded">whatsapp_business_messaging</code> permissions.</p>
+                                    <p className="text-zinc-500 text-xs mt-1 w-full">A permanent token with <code className="bg-zinc-800 px-1 rounded break-all">whatsapp_business_messaging</code> permissions.</p>
                                 </div>
                             </li>
                         </ul>
                     </div>
 
                     {/* Right Form (With Mobile overflow fixes: min-w-0, w-full, break-words) */}
-                    <div className="w-full shrink-0 flex flex-col gap-4 min-w-0">
+                    <div className="w-full md:w-[55%] shrink-0 flex flex-col gap-4 min-w-0">
                         {connectionStatus === "success" ? (
-                            <div className="p-6 border border-green-500/30 bg-green-500/10 rounded-xl text-center space-y-4">
+                            <div className="p-4 sm:p-6 border border-green-500/30 bg-green-500/10 rounded-xl text-center space-y-4 w-full">
                                 <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-2">
                                     <CheckCircle2 className="w-6 h-6 text-green-500" />
                                 </div>
@@ -155,7 +155,7 @@ export default function SettingsPage() {
                                 </Button>
                             </div>
                         ) : (
-                            <div className="p-6 border border-zinc-800 bg-black/40 rounded-xl space-y-4 w-full">
+                            <div className="p-4 sm:p-6 border border-zinc-800 bg-black/40 rounded-xl space-y-4 w-full">
                                 <div className="space-y-1.5 w-full">
                                     <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider block">Phone Number ID</label>
                                     <input
