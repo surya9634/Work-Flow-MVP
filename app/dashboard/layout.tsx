@@ -24,7 +24,6 @@ export default function DashboardLayout({
         { name: "Campaigns", href: "/dashboard/campaigns", icon: Zap },
         { name: "Live Monitoring", href: "/dashboard/monitoring", icon: Headphones },
         { name: "Activity & Logs", href: "/dashboard/activity", icon: BarChart3 },
-        { name: "WhatsApp", href: "/dashboard/whatsapp", icon: MessageCircle },
         { name: "Leads", href: "/dashboard/leads", icon: Users },
         { name: "Sandbox", href: "/dashboard/sandbox", icon: FlaskConical },
         { name: "Settings", href: "/dashboard/settings", icon: Settings },

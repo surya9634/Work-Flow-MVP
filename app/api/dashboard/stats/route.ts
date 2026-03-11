@@ -23,7 +23,10 @@ export async function GET() {
                 select: { status: true, duration: true, sentiment: true },
             }),
             prisma.callLog.findMany({
-                where: { agent: { userId } },
+                where: { 
+                    agent: { userId },
+                    leadId: { not: null }
+                },
                 orderBy: { createdAt: "desc" },
                 take: 10,
                 select: {
