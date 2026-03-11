@@ -8,8 +8,6 @@ import { Globe, Calendar, Check, Save, MessageCircle, Loader2, Hash, KeyRound, A
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true)
-    const [saved, setSaved] = useState(false)
-    const [agentConfig, setAgentConfig] = useState<any>({})
     const [isConnecting, setIsConnecting] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState<"idle" | "success" | "error">("idle");
     const [errorMessage, setErrorMessage] = useState("");
@@ -30,22 +28,6 @@ export default function SettingsPage() {
                 setLoading(false)
             })
     }, [])
-
-    const handleSave = async () => {
-        try {
-            const res = await fetch("/api/settings", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(agentConfig),
-            })
-            if (res.ok) {
-                setSaved(true)
-                setTimeout(() => setSaved(false), 2000)
-            }
-        } catch (error) {
-            console.error(error)
-        }
-    }
 
     const handleConnectClick = async () => {
         if (!formData.phoneNumberId || !formData.accessToken) {
@@ -177,24 +159,6 @@ export default function SettingsPage() {
                 )}
             </div>
 
-
-            {/* Save Button */}
-            <div className="flex justify-end pb-8">
-                <Button
-                    onClick={handleSave}
-                    className="bg-purple-600 hover:bg-purple-700 text-white min-w-[140px]"
-                >
-                    {saved ? (
-                        <>
-                            <Check className="mr-2 h-4 w-4" /> Saved
-                        </>
-                    ) : (
-                        <>
-                            <Save className="mr-2 h-4 w-4" /> Save Changes
-                        </>
-                    )}
-                </Button>
-            </div>
         </div>
     )
 }
