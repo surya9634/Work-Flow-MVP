@@ -19,7 +19,10 @@ export async function GET() {
                 select: { id: true, name: true, status: true },
             }),
             prisma.callLog.findMany({
-                where: { agent: { userId } },
+                where: { 
+                    agent: { userId },
+                    leadId: { not: null }
+                },
                 select: { status: true, duration: true, sentiment: true },
             }),
             prisma.callLog.findMany({
@@ -65,6 +68,7 @@ export async function GET() {
             SELECT outcome, COUNT(*) as count
             FROM "CallLog"
             WHERE "agentId" IN (SELECT id FROM "Agent" WHERE "userId" = ${userId})
+            AND "leadId" IS NOT NULL
             GROUP BY outcome
         `
         const callsByOutcome = outcomeCounts.reduce((acc, r) => {
