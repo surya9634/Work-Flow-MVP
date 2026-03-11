@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Bot, Send, Mic, MicOff, Volume2, Loader2, Sparkles, RefreshCw, MessageSquare } from "lucide-react"
+import { Bot, Send, Mic, Volume2, Loader2, Sparkles, RefreshCw, MessageSquare } from "lucide-react"
+import { AIVoiceInput } from "@/components/ui/ai-voice-input"
 
 type Message = {
     role: "user" | "assistant"
@@ -511,22 +512,11 @@ export default function SandboxPage() {
                 </div>
             ) : (
                 <div className="flex flex-col items-center gap-3 py-4">
-                    {isCallActive ? (
-                        <button
-                            onClick={endCall}
-                            className="w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all shadow-lg bg-red-500/10 border-red-500 hover:bg-red-500/20"
-                        >
-                            <MicOff className="h-8 w-8 text-red-400" />
-                        </button>
-                    ) : (
-                        <button
-                            onClick={startCall}
-                            disabled={!selectedAgent}
-                            className="w-20 h-20 rounded-full flex items-center justify-center border-2 transition-all shadow-lg bg-emerald-500/10 border-emerald-500 hover:bg-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            <Mic className="h-8 w-8 text-emerald-400" />
-                        </button>
-                    )}
+                    <AIVoiceInput 
+                        onStart={startCall}
+                        onStop={endCall}
+                        className={!selectedAgent ? "opacity-50 pointer-events-none" : undefined}
+                    />
                     <p className="text-xs text-zinc-500 font-medium h-4">
                         {!isCallActive ? "Click to start call"
                             : isPlaying ? "Agent speaking... (Interrupt anytime)"
