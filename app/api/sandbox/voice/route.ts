@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, AuthError } from "@/lib/auth"
 import Groq from "groq-sdk"
 import fs from "fs"
-import { synthesizeSpeech } from "@/lib/tts-server"
+import { synthesizeSpeech, DEFAULT_CARTESIA_VOICE_ID } from "@/lib/tts-server"
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         // ── 1. Load agent config & voice selection ──────────────
         let systemPrompt = "You are a helpful AI sales agent in a live voice test. Keep responses short, natural, and conversational — 1-3 sentences max."
         let agentName = "Agent"
-        let selectedVoiceId = requestVoiceId || "en-US-AriaNeural" // Default
+        let selectedVoiceId = requestVoiceId || DEFAULT_CARTESIA_VOICE_ID // Default Cartesia voice
         let llmModel = "llama-3.1-8b-instant"
 
         if (agentId) {

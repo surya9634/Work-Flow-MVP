@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Bot, Send, Mic, Volume2, Loader2, Sparkles, RefreshCw, MessageSquare } from "lucide-react"
 import { AIVoiceInput } from "@/components/ui/ai-voice-input"
+import { VOICE_CATALOG } from "@/lib/voice-catalog"
 
 type Message = {
     role: "user" | "assistant"
@@ -20,18 +21,6 @@ type Agent = {
     openingScript: string | null
     voiceProfile: string | null
 }
-
-const VOICE_OPTIONS = [
-    // English (Neural)
-    { id: "en-US-AriaNeural", name: "Aria (English)", gender: "female", tone: "Natural Neural" },
-    { id: "en-US-SteffanNeural", name: "Steffan (English)", gender: "male", tone: "Professional Neural" },
-    { id: "en-GB-SoniaNeural", name: "Sonia (British)", gender: "female", tone: "British Neural" },
-    { id: "en-GB-RyanNeural", name: "Ryan (British)", gender: "male", tone: "British Neural" },
-
-    // Hindi (Neural)
-    { id: "hi-IN-SwaraNeural", name: "Swara (Hindi)", gender: "female", tone: "Natural Hindi" },
-    { id: "hi-IN-MadhurNeural", name: "Madhur (Hindi)", gender: "male", tone: "Professional Hindi" },
-]
 
 export default function SandboxPage() {
     const [agents, setAgents] = useState<Agent[]>([])
@@ -390,7 +379,7 @@ export default function SandboxPage() {
                                 {(() => {
                                     try {
                                         const vp = JSON.parse(selectedAgentObj.voiceProfile || "{}");
-                                        const voice = VOICE_OPTIONS.find(v => v.id === vp.voiceId) || VOICE_OPTIONS[0];
+                                        const voice = VOICE_CATALOG.find(v => v.id === vp.voiceId) || VOICE_CATALOG[0];
                                         return <span>{voice.name} ({voice.gender})</span>
                                     } catch {
                                         return <span>Default (Female)</span>

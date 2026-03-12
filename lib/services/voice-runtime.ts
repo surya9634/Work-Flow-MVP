@@ -1,7 +1,7 @@
 // Removed openai import
 import { groq } from "@/lib/groq"
 import { CalendarService } from "@/lib/services/calendar"
-import { synthesizeSpeech } from "@/lib/tts-server";
+import { synthesizeSpeech, CARTESIA_VOICES, DEFAULT_CARTESIA_VOICE_ID } from "@/lib/tts-server";
 import { Readable } from "stream";
 import fs from "fs";
 import os from "os";
@@ -11,12 +11,12 @@ import { v4 as uuidv4 } from "uuid";
 /**
  * VOICE RUNTIME ENGINE
  * 
- * Real implementations using free services:
- * - STT: Groq Whisper (whisper-large-v3-turbo) — free tier, uses existing GROQ_API_KEY
- * - TTS: Google Translate TTS — completely free fallback, no API key
- * - LLM: Groq (llama-3.3-70b-versatile) — free tier, uses existing GROQ_API_KEY
+ * Real implementations:
+ * - STT: Groq Whisper (whisper-large-v3-turbo) — uses GROQ_API_KEY
+ * - TTS: Cartesia Sonic — high-quality, low-latency cloud TTS, uses CARTESIA_API_KEY
+ * - LLM: Groq (llama-3.3-70b-versatile) — uses GROQ_API_KEY
  * 
- * Pipeline: Audio In → STT (Groq Whisper) → Intent → ConvTree → LLM → TTS (Google) → Audio Out
+ * Pipeline: Audio In → STT (Groq Whisper) → Intent → ConvTree → LLM → TTS (Cartesia) → Audio Out
  */
 
 export interface VoiceEvent {
@@ -35,26 +35,26 @@ export interface CallSession {
 }
 
 // ─── VOICE MAPPING ──────────────────────────────────
-// Maps voice profile settings to Google TTS language/host configurations
-// Google TTS doesn't support specific voices, but supports accents via host domains
+// Maps voice profile gender/tone settings to Cartesia voice UUIDs.
+// Browse all voices at https://play.cartesia.ai
 const VOICE_MAP: Record<string, Record<string, string>> = {
     male: {
-        professional: "https://translate.google.com",   // US English
-        friendly: "https://translate.google.com.au",    // Australian English
-        casual: "https://translate.google.co.uk",       // UK English
-        assertive: "https://translate.google.co.in",    // Indian English
+        professional: CARTESIA_VOICES["en-male-professional"],
+        friendly:     CARTESIA_VOICES["en-male-friendly"],
+        casual:       CARTESIA_VOICES["en-male-casual"],
+        assertive:    CARTESIA_VOICES["en-male-professional"],
     },
     female: {
-        professional: "https://translate.google.com",   // US English
-        friendly: "https://translate.google.com.au",    // Australian English
-        casual: "https://translate.google.co.uk",       // UK English
-        assertive: "https://translate.google.co.in",    // Indian English
+        professional: CARTESIA_VOICES["en-female-professional"],
+        friendly:     CARTESIA_VOICES["en-female-friendly"],
+        casual:       CARTESIA_VOICES["en-female-casual"],
+        assertive:    CARTESIA_VOICES["en-female-professional"],
     },
 };
 
-function resolveVoiceHost(voiceProfile: any): string {
+function resolveVoiceId(voiceProfile: any): string {
     const gender = (voiceProfile?.gender || "female").toLowerCase();
-    const tone = (voiceProfile?.tone || "professional").toLowerCase();
+    const tone   = (voiceProfile?.tone   || "professional").toLowerCase();
     return VOICE_MAP[gender]?.[tone] || VOICE_MAP.female.professional;
 }
 
@@ -160,14 +160,14 @@ export class VoiceRuntime {
     }
 
     /**
-     * REAL TTS — Edge TTS engine for high-quality human-equivalent voices.
-     * Returns audio buffer.
+     * REAL TTS — Cartesia Sonic for high-quality, low-latency speech synthesis.
+     * Returns audio buffer (MP3).
      */
     static async generateSpeech(text: string, voiceProfile: any): Promise<Buffer> {
         try {
-            console.log(`[VoiceRuntime] Generating speech via Edge-TTS...`);
-            // Voice profile dictates the specific TTS voice, default to Aria (Female US)
-            const voiceId = voiceProfile?.voiceId || 'en-US-AriaNeural';
+            console.log(`[VoiceRuntime] Generating speech via Cartesia TTS...`);
+            // Use explicit voiceId from profile if present, otherwise derive from gender/tone
+            const voiceId = voiceProfile?.voiceId || resolveVoiceId(voiceProfile) || DEFAULT_CARTESIA_VOICE_ID;
 
             // synthesizeSpeech returns a base64 encoded MP3 string
             const base64Audio = await synthesizeSpeech(text, voiceId);
@@ -420,14 +420,16 @@ Return ONLY this JSON:
     }
 
     /**
-     * Get available TTS voices (Google TTS just has languages/hosts)
+     * Get available TTS voices (Cartesia voice UUIDs)
      */
     static async getAvailableVoices() {
         return [
-            { Name: "US English", ShortName: "en-US", Gender: "Female", Locale: "en-US" },
-            { Name: "UK English", ShortName: "en-GB", Gender: "Female", Locale: "en-GB" },
-            { Name: "Australian English", ShortName: "en-AU", Gender: "Female", Locale: "en-AU" },
-            { Name: "Indian English", ShortName: "en-IN", Gender: "Female", Locale: "en-IN" },
+            { Name: "Barbra (Female Professional)", ShortName: CARTESIA_VOICES["en-female-professional"], Gender: "Female", Locale: "en-US" },
+            { Name: "Friendly Female",               ShortName: CARTESIA_VOICES["en-female-friendly"],    Gender: "Female", Locale: "en-US" },
+            { Name: "Casual Female",                 ShortName: CARTESIA_VOICES["en-female-casual"],      Gender: "Female", Locale: "en-US" },
+            { Name: "Professional Male",              ShortName: CARTESIA_VOICES["en-male-professional"],  Gender: "Male",   Locale: "en-US" },
+            { Name: "Friendly Male",                 ShortName: CARTESIA_VOICES["en-male-friendly"],      Gender: "Male",   Locale: "en-US" },
+            { Name: "Casual Male",                   ShortName: CARTESIA_VOICES["en-male-casual"],        Gender: "Male",   Locale: "en-US" },
         ];
     }
 }

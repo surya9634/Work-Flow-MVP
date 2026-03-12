@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Bot, Zap, Phone, MessageSquare, Loader2, ChevronRight, FileText, Trash2, AlertTriangle, Sparkles, Volume2, Calendar } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { VOICE_CATALOG, VOICE_CATEGORIES, DEFAULT_VOICE_ID, type VoiceCategory } from "@/lib/voice-catalog"
 
 type Agent = {
     id: string
@@ -25,21 +26,6 @@ type Agent = {
     _count?: { callLogs: number }
 }
 
-const VOICE_OPTIONS = [
-    // English (Neural)
-    { id: "en-US-AriaNeural", name: "Aria (English)", gender: "female", tone: "Natural Neural" },
-    { id: "en-US-SteffanNeural", name: "Steffan (English)", gender: "male", tone: "Professional Neural" },
-    { id: "en-US-JennyNeural", name: "Jenny (English)", gender: "female", tone: "Friendly Neural" },
-    { id: "en-US-GuyNeural", name: "Guy (English)", gender: "male", tone: "Corporate Neural" },
-    { id: "en-GB-SoniaNeural", name: "Sonia (British)", gender: "female", tone: "British Neural" },
-    { id: "en-GB-RyanNeural", name: "Ryan (British)", gender: "male", tone: "British Neural" },
-    { id: "en-GB-LibbyNeural", name: "Libby (British)", gender: "female", tone: "Natural British" },
-    { id: "en-AU-NatashaNeural", name: "Natasha (Australian)", gender: "female", tone: "Australian Neural" },
-
-    // Hindi (Neural)
-    { id: "hi-IN-SwaraNeural", name: "Swara (Hindi)", gender: "female", tone: "Natural Hindi" },
-    { id: "hi-IN-MadhurNeural", name: "Madhur (Hindi)", gender: "male", tone: "Professional Hindi" },
-]
 
 const LLM_OPTIONS = [
     { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B Versatile" },
@@ -70,8 +56,10 @@ export default function AgentsPage() {
     const [editName, setEditName] = useState("")
     const [editSystemPrompt, setEditSystemPrompt] = useState("")
     const [editOpeningScript, setEditOpeningScript] = useState("")
-    const [editVoiceId, setEditVoiceId] = useState("aura-asteria-en")
+    const [editVoiceId, setEditVoiceId] = useState(DEFAULT_VOICE_ID)
     const [editLlmModel, setEditLlmModel] = useState("llama-3.3-70b-versatile")
+    const [voiceCategory, setVoiceCategory] = useState<VoiceCategory>("English")
+    const [voiceGender, setVoiceGender] = useState<"all" | "female" | "male">("all")
 
     const fetchAgents = () => {
         setIsLoading(true)
@@ -91,9 +79,9 @@ export default function AgentsPage() {
             setEditLlmModel(selected.llmModel || "llama-3.3-70b-versatile")
             try {
                 const vp = JSON.parse(selected.voiceProfile || "{}")
-                setEditVoiceId(vp.voiceId || "aura-asteria-en")
+                setEditVoiceId(vp.voiceId || DEFAULT_VOICE_ID)
             } catch {
-                setEditVoiceId("aura-asteria-en")
+                setEditVoiceId(DEFAULT_VOICE_ID)
             }
         }
     }, [selected])
@@ -337,46 +325,79 @@ export default function AgentsPage() {
 
                                 <div>
                                     <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                        Agent Voice
+                                        <Volume2 className="h-3 w-3" /> Agent Voice
                                     </p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {VOICE_OPTIONS.map((voice) => (
-                                            <div
-                                                key={voice.id}
-                                                onClick={() => setEditVoiceId(voice.id)}
-                                                className={`flex flex-col items-start px-3 py-2 rounded-lg text-xs border transition-all cursor-pointer ${editVoiceId === voice.id
-                                                    ? "bg-purple-500/10 border-purple-500/50 text-purple-400 ring-1 ring-purple-500/50"
-                                                    : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
-                                                    }`}
-                                                role="button"
-                                                tabIndex={0}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' || e.key === ' ') {
-                                                        setEditVoiceId(voice.id);
-                                                    }
-                                                }}
+
+                                    {/* Category Tabs */}
+                                    <div className="flex gap-1 mb-3 bg-zinc-800/50 rounded-lg p-1">
+                                        {VOICE_CATEGORIES.map((cat) => (
+                                            <button
+                                                key={cat}
+                                                onClick={() => setVoiceCategory(cat)}
+                                                className={`flex-1 px-2 py-1.5 rounded-md text-[11px] font-semibold transition-all ${
+                                                    voiceCategory === cat
+                                                        ? "bg-purple-600 text-white shadow-sm"
+                                                        : "text-zinc-500 hover:text-zinc-300"
+                                                }`}
                                             >
-                                                <div className="flex w-full items-center justify-between gap-1 mb-1">
-                                                    <span className="font-semibold text-white">{voice.name}</span>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            handlePreviewVoice(voice.id)
-                                                        }}
-                                                        disabled={isPreviewing !== null}
-                                                        className="p-1 rounded-md hover:bg-white/10 text-zinc-400 hover:text-purple-400 transition-colors"
-                                                        title="Preview voice"
-                                                    >
-                                                        {isPreviewing === voice.id ? (
-                                                            <Loader2 className="h-3 w-3 animate-spin" />
-                                                        ) : (
-                                                            <Volume2 className="h-3 w-3" />
-                                                        )}
-                                                    </button>
-                                                </div>
-                                                <span className="capitalize opacity-60 text-[10px]">{voice.gender} · {voice.tone}</span>
-                                            </div>
+                                                {cat === "Indian English" ? "IN English" : cat}
+                                            </button>
                                         ))}
+                                    </div>
+
+                                    {/* Gender Filter */}
+                                    <div className="flex gap-1.5 mb-3">
+                                        {(["all", "female", "male"] as const).map((g) => (
+                                            <button
+                                                key={g}
+                                                onClick={() => setVoiceGender(g)}
+                                                className={`px-2.5 py-0.5 rounded-full text-[11px] border transition-all capitalize ${
+                                                    voiceGender === g
+                                                        ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
+                                                        : "border-zinc-700 text-zinc-500 hover:border-zinc-600"
+                                                }`}
+                                            >
+                                                {g === "all" ? "All" : g === "female" ? "♀ Female" : "♂ Male"}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Voice Cards */}
+                                    <div className="grid grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1">
+                                        {VOICE_CATALOG
+                                            .filter(v => v.category === voiceCategory && (voiceGender === "all" || v.gender === voiceGender))
+                                            .map((voice) => (
+                                                <div
+                                                    key={voice.id}
+                                                    onClick={() => setEditVoiceId(voice.id)}
+                                                    className={`flex flex-col items-start px-3 py-2 rounded-lg text-xs border transition-all cursor-pointer ${
+                                                        editVoiceId === voice.id
+                                                            ? "bg-purple-500/10 border-purple-500/50 text-purple-400 ring-1 ring-purple-500/50"
+                                                            : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
+                                                    }`}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setEditVoiceId(voice.id) }}
+                                                >
+                                                    <div className="flex w-full items-center justify-between gap-1 mb-0.5">
+                                                        <span className="font-semibold text-white truncate">{voice.name}</span>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handlePreviewVoice(voice.id) }}
+                                                            disabled={isPreviewing !== null}
+                                                            className="p-1 rounded-md hover:bg-white/10 text-zinc-400 hover:text-purple-400 transition-colors shrink-0"
+                                                            title="Preview voice"
+                                                        >
+                                                            {isPreviewing === voice.id ? (
+                                                                <Loader2 className="h-3 w-3 animate-spin" />
+                                                            ) : (
+                                                                <Volume2 className="h-3 w-3" />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                    <span className="capitalize opacity-60 text-[10px] truncate w-full">{voice.description}</span>
+                                                </div>
+                                            ))
+                                        }
                                     </div>
                                 </div>
 
