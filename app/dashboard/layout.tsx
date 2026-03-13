@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, Settings, LogOut, Bot, Menu, X, Zap, Headphones, Plus, BarChart3, ChevronRight, Sparkles, FlaskConical, MessageSquareText, MessageCircle } from "lucide-react"
+import { LayoutDashboard, Users, Settings, LogOut, Bot, Menu, X, Zap, Headphones, Plus, BarChart3, ChevronRight, Sparkles, FlaskConical, MessageSquareText, MessageCircle, TrendingUp, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { signOut, useSession } from "next-auth/react"
 
@@ -23,9 +23,11 @@ export default function DashboardLayout({
         { name: "AI Agents", href: "/dashboard/agents", icon: Bot },
         { name: "Campaigns", href: "/dashboard/campaigns", icon: Zap },
         { name: "Live Monitoring", href: "/dashboard/monitoring", icon: Headphones },
+        { name: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
         { name: "Activity & Logs", href: "/dashboard/activity", icon: BarChart3 },
         { name: "Leads", href: "/dashboard/leads", icon: Users },
         { name: "Sandbox", href: "/dashboard/sandbox", icon: FlaskConical },
+        { name: "Credits", href: "/dashboard/settings/credits", icon: CreditCard },
         { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ]
 

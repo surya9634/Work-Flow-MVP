@@ -32,6 +32,7 @@ model User {
   agentConfig        AgentConfig?
   onboardingSessions OnboardingSession[]
   agents             Agent[]
+  creditTransactions CreditTransaction[]
 }
 
 // ─── ONBOARDING ───────────────────────────────────────
@@ -70,6 +71,7 @@ model Agent {
   callLogs        CallLog[]
   campaigns       Campaign[]
   interactionLogs InteractionLog[]
+  objectionLogs   ObjectionLog[]
 }
 
 model AgentVersion {
@@ -139,6 +141,7 @@ model Lead {
   updatedAt       DateTime  @updatedAt
   callLogs        CallLog[]
   interactionLogs InteractionLog[]
+  memory          LeadMemory?
 }
 
 // ─── CALL LOGS ────────────────────────────────────────
@@ -157,6 +160,9 @@ model CallLog {
   recordingUrl String?
   transcript   String?
   sentiment    String?
+  summary      String?   // AI-generated post-call summary (3 sentences)
+  talkRatio    Float?    // fraction of turns the prospect spoke (0.0–1.0)
+  objections   String?   // JSON string[] of objection phrases detected
   createdAt    DateTime  @default(now())
 
   leadScore LeadScore?
@@ -213,4 +219,37 @@ model InteractionLog {
   mediaUrl     String?
   status       String?
   createdAt    DateTime  @default(now())
+}
+
+// ─── LEAD MEMORY (cross-call facts) ───────────────────
+model LeadMemory {
+  id        String   @id @default(cuid())
+  leadId    String   @unique
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  facts     String   @default("[]") // JSON: [{key, value, extractedAt}]
+  summary   String?                 // rolling prose memory summary
+  updatedAt DateTime @updatedAt
+}
+
+// ─── OBJECTION LOG (per-agent frequency) ──────────────
+model ObjectionLog {
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     Agent    @relation(fields: [agentId], references: [id])
+  objection String
+  count     Int      @default(1)
+  updatedAt DateTime @updatedAt
+
+  @@unique([agentId, objection])
+}
+
+// ─── CREDIT TRANSACTIONS (billing audit) ──────────────
+model CreditTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int      // positive = credit added, negative = debit
+  reason    String   // "call_minute" | "purchase" | "signup_bonus"
+  callLogId String?
+  createdAt DateTime @default(now())
 }

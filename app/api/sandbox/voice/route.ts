@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { requireAuth, AuthError } from "@/lib/auth"
+import { requireAuth, getAuthUserId, AuthError } from "@/lib/auth"
 import Groq from "groq-sdk"
 import fs from "fs"
 import { synthesizeSpeech, DEFAULT_CARTESIA_VOICE_ID } from "@/lib/tts-server"
+import { getMemoryContext } from "@/lib/services/lead-memory"
+import { runPostCallPipeline } from "@/lib/services/call-summarizer"
+import { debitCallCredits } from "@/lib/services/credits"
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
@@ -21,6 +24,8 @@ export async function POST(req: Request) {
         const agentId = formData.get("agentId") as string | null
         const requestVoiceId = formData.get("voiceId") as string | null
         const historyStr = (formData.get("conversationHistory") as string) || "[]"
+        const leadId = formData.get("leadId") as string | null
+        const isLastTurn = formData.get("isLastTurn") === "true"
 
         if (!audioFile) {
             return NextResponse.json({ error: "Audio file is required" }, { status: 400 })
@@ -49,9 +54,7 @@ export async function POST(req: Request) {
         }
 
         console.log(`[Sandbox Voice] Persona: ${selectedVoiceId} for ${agentName}`)
-        try {
-            fs.appendFileSync("api_debug.txt", `[${new Date().toISOString()}] Sandbox Voice: agent=${agentName}, voice=${selectedVoiceId}\n`);
-        } catch (e) { }
+        try { fs.appendFileSync("api_debug.txt", `[${new Date().toISOString()}] Sandbox Voice: agent=${agentName}\n`) } catch (e) { }
 
         // ── 2. STT via Groq Whisper ─────────────────────────────
         const audioBuffer = Buffer.from(await audioFile.arrayBuffer())
@@ -80,7 +83,14 @@ export async function POST(req: Request) {
             })
         }
 
-        // ── 3. LLM via Groq ─────────────────────────────────────
+        // ── 3. Inject lead memory (if lead known) ──────────────
+        let memoryContext = ""
+        if (leadId) {
+            memoryContext = await getMemoryContext(leadId)
+        }
+        const systemPromptWithMemory = systemPrompt + memoryContext
+
+        // ── 4. LLM via Groq ─────────────────────────────────────
         const history: string[] = JSON.parse(historyStr)
         const conversationMessages: { role: "user" | "assistant"; content: string }[] = []
         for (const line of history) {
@@ -91,18 +101,37 @@ export async function POST(req: Request) {
 
         const llmRes = await groq.chat.completions.create({
             model: llmModel,
-            messages: [{ role: "system", content: systemPrompt }, ...conversationMessages],
+            messages: [{ role: "system", content: systemPromptWithMemory }, ...conversationMessages],
             max_tokens: 60,   // voice turns must be short; 60 tokens ≈ 2 sentences
             temperature: 0.7,
         })
         const agentResponse = llmRes.choices[0]?.message?.content?.trim() || "I'm here to help."
 
-        // ── 4. Robust TTS with variety ──────────────────────────
+        // ── 5. TTS ───────────────────────────────────────────
         let audioBase64: string | null = null
         try {
             audioBase64 = await synthesizeSpeech(agentResponse, selectedVoiceId)
         } catch (ttsErr: any) {
             console.error(`[Sandbox Voice] TTS failed:`, ttsErr)
+        }
+
+        // ── 6. Post-call pipeline (async, non-blocking) ──────
+        // Runs after response is sent: summary, memory, objections, credits
+        if (isLastTurn || history.length >= 18) {
+            const fullTranscript = [
+                ...history,
+                `User: ${userTranscript}`,
+                `Agent: ${agentResponse}`,
+            ].join("\n")
+            const callDurationEst = Math.max(30, history.length * 15) // ~15s per turn
+
+            // Fire-and-forget (no await)
+            void Promise.all([
+                agentId && leadId
+                    ? runPostCallPipeline("", fullTranscript, agentId, leadId)
+                    : Promise.resolve(),
+                debitCallCredits(userId, callDurationEst),
+            ]).catch((e) => console.error("[PostCall async]:", e))
         }
 
         return NextResponse.json({
