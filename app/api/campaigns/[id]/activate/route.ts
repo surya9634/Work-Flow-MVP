@@ -2,7 +2,23 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, AuthError } from "@/lib/auth"
 import { groq } from "@/lib/groq"
-import { makeOutboundCall } from "@/lib/services/exotel"
+import { twilioClient, twilioPhoneNumber } from "@/lib/services/twilio"
+import { generateSpeechWithSarvam } from "@/lib/services/sarvam"
+import fs from "fs/promises"
+import path from "path"
+import twilio from "twilio"
+import { v4 as uuidv4 } from "uuid"
+
+const VoiceResponse = twilio.twiml.VoiceResponse;
+const AUDIO_DIR = path.join(process.cwd(), "public", "temp-audio");
+
+async function ensureAudioDir() {
+    try {
+        await fs.access(AUDIO_DIR);
+    } catch {
+        await fs.mkdir(AUDIO_DIR, { recursive: true });
+    }
+}
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -118,27 +134,60 @@ export async function POST(_req: Request, context: RouteContext) {
                 if (campaign.type === "VOICE" || campaign.type === "BOTH" || campaign.type === "OUTBOUND") {
                     try {
                         console.log(`[Voice Dispatch] Attempting dial for lead ${lead.phone}`);
-                        console.log(`[Voice Dispatch] Routing number ${lead.phone} to Exotel...`);
+                        console.log(`[Voice Dispatch] Routing number ${lead.phone} to Twilio...`);
                         
-                        // EXOTEL ROUTING
-                        const webhookUrl = `${appUrl}/api/exotel/webhook`;
-                        const fromNumber = process.env.EXOTEL_VIRTUAL_NUMBER || "";
-                        
-                        if (!fromNumber || !process.env.EXOTEL_API_KEY) {
-                            console.error("[Campaign Activate] Exotel credentials missing in .env.");
-                            continue;
-                        }
-
-                        // Pass agentId and leadId via custom field so the webhook knows who it is
-                        const customField = JSON.stringify({ agentId: campaign.agentId, leadId: lead.id, campaignId: campaign.id });
-                        
-                        const exotelCall = await makeOutboundCall({
-                            to: lead.phone,
-                            callerId: fromNumber,
-                            webhookUrl: webhookUrl,
-                            customField: customField
+                        // 1. Create Call Log
+                        const callLog = await prisma.callLog.create({
+                            data: {
+                                agentId: campaign.agentId,
+                                leadId: lead.id,
+                                campaignId: campaign.id,
+                                status: "initiating",
+                                transcript: `System: Initiating Twilio campaign call to ${lead.phone}\n`
+                            }
                         });
-                        console.log(`[Voice Dispatch] Exotel Call successfully queued with SID: ${exotelCall.callSid}`);
+
+                        // 2. Generate Opening Greeting (Sarvam)
+                        await ensureAudioDir();
+                        const agent = await prisma.agent.findUnique({ where: { id: campaign.agentId || "" } });
+                        const voiceProfile = agent?.voiceProfile ? JSON.parse(agent.voiceProfile) : {};
+                        const voiceId = voiceProfile.voiceId || "priya-hi";
+                        const textGreeting = agent?.openingScript ? 
+                            agent.openingScript.split("\n")[0] || "Namaste" 
+                            : "Namaste";
+
+                        const audioBuffer = await generateSpeechWithSarvam(textGreeting, voiceId);
+                        const filename = `${callLog.id}_opening_${uuidv4()}.wav`;
+                        const filepath = path.join(AUDIO_DIR, filename);
+                        await fs.writeFile(filepath, audioBuffer);
+                        
+                        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://your-ngrok-url.ngrok.app";
+                        const publicAudioUrl = `${appUrl}/api/twilio/audio/${filename}`;
+
+                        // 3. Build TwiML
+                        const twiml = new VoiceResponse();
+                        twiml.play(publicAudioUrl);
+                        twiml.record({
+                            action: `${appUrl}/api/twilio/webhook?callLogId=${callLog.id}`,
+                            method: 'POST',
+                            timeout: 2,
+                            maxLength: 30,
+                            playBeep: false
+                        });
+
+                        // 4. Dial
+                        if (!twilioPhoneNumber) throw new Error("TWILIO_PHONE_NUMBER missing");
+
+                        await twilioClient.calls.create({
+                            twiml: twiml.toString(),
+                            to: lead.phone,
+                            from: twilioPhoneNumber,
+                            statusCallback: `${appUrl}/api/twilio/webhook?callLogId=${callLog.id}`,
+                            statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
+                            statusCallbackMethod: 'POST',
+                        });
+
+                        console.log(`[Voice Dispatch] Twilio Call successfully initiated for ${lead.phone}`);
                         queuedCalls++;
                     } catch (e) {
                         console.error(`[Campaign Activate] Failed to dial voice lead ${lead.phone}:`, e);

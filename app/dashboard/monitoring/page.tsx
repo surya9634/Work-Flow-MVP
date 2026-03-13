@@ -127,7 +127,7 @@ export default function LiveMonitoringPage() {
                     <div className="border border-dashed rounded-xl p-12 text-center flex flex-col items-center justify-center text-muted-foreground">
                         <Loader2 className="h-8 w-8 animate-spin mb-4 opacity-50" />
                         <p>No active calls detected at this moment.</p>
-                        <p className="text-sm">Start an outbound campaign or call your Exotel number to see live transcripts here.</p>
+                        <p className="text-sm">Start an outbound campaign or call your Twilio number to see live transcripts here.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

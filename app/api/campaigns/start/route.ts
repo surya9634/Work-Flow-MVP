@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { groq } from "@/lib/groq";
-import { makeOutboundCall } from "@/lib/services/exotel";
+import { twilioClient, twilioPhoneNumber } from "@/lib/services/twilio";
 
 export async function POST(req: Request) {
     try {
@@ -97,25 +97,24 @@ export async function POST(req: Request) {
                     const baseUrl = `${protocol}://${host}`;
 
                     try {
-                        console.log(`[Campaign] Routing number ${lead.phone} to Exotel...`);
+                        console.log(`[Campaign] Routing number ${lead.phone} to Twilio...`);
                         
-                        // EXOTEL ROUTING
-                        const webhookUrl = `${baseUrl}/api/exotel/webhook`;
-                        const fromNumber = process.env.EXOTEL_VIRTUAL_NUMBER || "";
-                        
-                        if (!fromNumber || !process.env.EXOTEL_API_KEY) {
-                            console.error("[Campaign] Exotel credentials missing in .env.");
+                        // TWILIO ROUTING
+                        const webhookUrl = `${baseUrl}/api/twilio/webhook`;
+                        const fromNumber = twilioPhoneNumber;
+
+                        if (!fromNumber) {
+                            console.error("[Campaign] Twilio phone number missing in .env.");
                             continue;
                         }
 
-                        // Pass agentId and leadId via custom field so the webhook knows who it is
-                        const customField = JSON.stringify({ agentId: campaign.agentId, leadId: lead.id, campaignId: campaign.id });
-                        
-                        await makeOutboundCall({
+                        const twilioCall = await twilioClient.calls.create({
+                            url: webhookUrl,
                             to: lead.phone,
-                            callerId: fromNumber,
-                            webhookUrl: webhookUrl,
-                            customField: customField
+                            from: fromNumber,
+                            statusCallback: webhookUrl,
+                            statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
+                            statusCallbackMethod: 'POST',
                         });
                         queuedCalls++;
                     } catch (e) {
