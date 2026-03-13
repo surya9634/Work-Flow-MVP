@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
         // Twilio will beep and start recording until silence or max length, 
         // then POST back to this exact webhook URL with `RecordingUrl`.
         twiml.record({
-            action: `${getBaseUrl()}/api/twilio/webhook`, // Post back here
+            action: `${getBaseUrl()}/api/twilio/webhook?callLogId=${activeCall.id}`, // Post back here WITH the ID
             method: 'POST',
             timeout: 2, // stop recording after 2 seconds of silence
             maxLength: 30, // max recording len
