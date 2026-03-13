@@ -49,6 +49,7 @@ export interface ExotelCallOptions {
     webhookUrl: string;      // URL Exotel POSTs to when prospect answers
     statusCallbackUrl?: string; // URL for call status updates
     timeLimit?: number;      // max call duration in seconds (default 1800)
+    customField?: string;    // Custom data passed back in webhooks (e.g. agentId)
 }
 
 export interface ExotelCallResponse {
@@ -70,6 +71,7 @@ export async function makeOutboundCall(opts: ExotelCallOptions): Promise<ExotelC
         TimeLimit:    String(opts.timeLimit ?? 1800),
         Record:       "false",   // we handle recording ourselves via ExoML
         ...(opts.statusCallbackUrl && { StatusCallbackUrl: opts.statusCallbackUrl }),
+        ...(opts.customField && { CustomField: opts.customField }),
     });
 
     const res = await fetch(`${baseUrl()}/Calls/connect.json`, {
