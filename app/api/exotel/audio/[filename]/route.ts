@@ -14,9 +14,9 @@ import os from "os";
  */
 export async function GET(
     _req: Request,
-    { params }: { params: { filename: string } }
+    { params }: { params: Promise<{ filename: string }> }
 ) {
-    const filename = params.filename;
+    const { filename } = await params;
 
     // Basic security: only allow alphanumeric + underscores + hyphens + .mp3
     if (!filename || !/^[\w\-]+\.mp3$/.test(filename)) {
