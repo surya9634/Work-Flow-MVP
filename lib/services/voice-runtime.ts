@@ -2,9 +2,11 @@ import { groq } from "@/lib/groq"
 import { CalendarService } from "@/lib/services/calendar"
 import { 
     processAudioWithSarvam, 
-    translateTextToHindi, 
+    translateText,
+    translateTextToHindi,
     generateSpeechWithSarvam, 
-    getSarvamVoices 
+    getSarvamVoices,
+    getVoiceById,
 } from "@/lib/services/sarvam";
 import { Readable } from "stream";
 import fs from "fs";
@@ -12,7 +14,7 @@ import os from "os";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
-const DEFAULT_SARVAM_VOICE_ID = "meera";
+const DEFAULT_SARVAM_VOICE_ID = "meera-hi";
 
 /**
  * VOICE RUNTIME ENGINE
@@ -41,19 +43,19 @@ export interface CallSession {
 }
 
 // ─── VOICE MAPPING ──────────────────────────────────
-// Maps voice profile gender/tone settings to Sarvam voice IDs.
+// Maps voice profile gender/tone settings to Sarvam compound voice IDs.
 const VOICE_MAP: Record<string, Record<string, string>> = {
     male: {
-        professional: "ravi",
-        friendly:     "ravi",
-        casual:       "rahul",
-        assertive:    "ravi",
+        professional: "arvind-hi",
+        friendly:     "amol-hi",
+        casual:       "amol-hi",
+        assertive:    "amartya-hi",
     },
     female: {
-        professional: "anjali",
-        friendly:     "meera",
-        casual:       "meera",
-        assertive:    "anjali",
+        professional: "pavithra-hi",
+        friendly:     "meera-hi",
+        casual:       "maitreyi-hi",
+        assertive:    "pavithra-hi",
     },
 };
 
@@ -168,21 +170,23 @@ export class VoiceRuntime {
      * REAL TTS — Sarvam AI Text-to-Speech (Bulbul v3).
      * Takes English text, translates to Hindi, then generates Hindi audio Buffer (WAV).
      */
-    static async generateSpeech(text: string, voiceProfile: any, translateToHindi = true): Promise<Buffer> {
+    static async generateSpeech(text: string, voiceProfile: any, translateToIndic = true): Promise<Buffer> {
         try {
-            console.log(`[VoiceRuntime] TTS Step 1: LLM text "${text}"`);
-            
-            let targetText = text;
-            if (translateToHindi) {
-                console.log(`[VoiceRuntime] TTS Step 2: Translating English constraint to Hindi...`);
-                targetText = await translateTextToHindi(text);
-                console.log(`[VoiceRuntime] TTS Translated: "${targetText}"`);
-            }
-
-            console.log(`[VoiceRuntime] TTS Step 3: Generating Hindi speech via Sarvam...`);
             const voiceId = voiceProfile?.voiceId || DEFAULT_SARVAM_VOICE_ID;
             
-            // Generate speech using Sarvam
+            // Resolve the voice's target language from the catalogue
+            const voice = getVoiceById(voiceId);
+            const targetLang = voice.language;
+
+            console.log(`[VoiceRuntime] TTS: voice=${voiceId} lang=${targetLang}`);
+
+            let targetText = text;
+            if (translateToIndic) {
+                console.log(`[VoiceRuntime] TTS: translating to ${targetLang}...`);
+                targetText = await translateText(text, targetLang);
+                console.log(`[VoiceRuntime] TTS translated: "${targetText}"`);
+            }
+
             return await generateSpeechWithSarvam(targetText, voiceId);
 
         } catch (error) {
