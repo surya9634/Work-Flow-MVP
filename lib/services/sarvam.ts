@@ -228,6 +228,19 @@ export async function generateSpeechWithSarvam(
         langCode = LEGACY_SPEAKER_LANG[robustVoiceId] || "hi-IN";
     }
 
+    // Safety fallback for bulbul:v3 allowed speakers
+    const allowedSpeakers = [
+        "vidya", "arya", "karun", "hitesh", "aditya", "ritu", "priya", "neha", "rahul", "pooja", "rohan", "simran", 
+        "kavya", "amit", "dev", "ishita", "shreya", "ratan", "varun", "manan", "sumit", "roopa", "kabir", "aayan", 
+        "shubh", "ashutosh", "advait", "amelia", "sophia", "anand", "tanya", "tarun", "sunny", "mani", "gokul", 
+        "vijay", "shruti", "suhani", "mohit", "kavitha", "rehan", "soham", "rupali"
+    ];
+
+    if (!allowedSpeakers.includes(speaker)) {
+        console.warn(`[Sarvam TTS] Invalid speaker requested: ${speaker}. Falling back to 'priya'.`);
+        speaker = "priya";
+    }
+
     const res = await fetch(`${BASE_URL}/text-to-speech`, {
         method: "POST",
         headers: { ...HEADERS, "Content-Type": "application/json" },
