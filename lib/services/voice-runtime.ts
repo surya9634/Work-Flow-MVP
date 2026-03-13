@@ -1,12 +1,18 @@
-// Removed openai import
 import { groq } from "@/lib/groq"
 import { CalendarService } from "@/lib/services/calendar"
-import { synthesizeSpeech, CARTESIA_VOICES, DEFAULT_CARTESIA_VOICE_ID } from "@/lib/tts-server";
+import { 
+    processAudioWithSarvam, 
+    translateTextToHindi, 
+    generateSpeechWithSarvam, 
+    getSarvamVoices 
+} from "@/lib/services/sarvam";
 import { Readable } from "stream";
 import fs from "fs";
 import os from "os";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+
+const DEFAULT_SARVAM_VOICE_ID = "meera";
 
 /**
  * VOICE RUNTIME ENGINE
@@ -35,20 +41,19 @@ export interface CallSession {
 }
 
 // ─── VOICE MAPPING ──────────────────────────────────
-// Maps voice profile gender/tone settings to Cartesia voice UUIDs.
-// Browse all voices at https://play.cartesia.ai
+// Maps voice profile gender/tone settings to Sarvam voice IDs.
 const VOICE_MAP: Record<string, Record<string, string>> = {
     male: {
-        professional: CARTESIA_VOICES["en-male-professional"],
-        friendly:     CARTESIA_VOICES["en-male-friendly"],
-        casual:       CARTESIA_VOICES["en-male-casual"],
-        assertive:    CARTESIA_VOICES["en-male-professional"],
+        professional: "ravi",
+        friendly:     "ravi",
+        casual:       "rahul",
+        assertive:    "ravi",
     },
     female: {
-        professional: CARTESIA_VOICES["en-female-professional"],
-        friendly:     CARTESIA_VOICES["en-female-friendly"],
-        casual:       CARTESIA_VOICES["en-female-casual"],
-        assertive:    CARTESIA_VOICES["en-female-professional"],
+        professional: "anjali",
+        friendly:     "meera",
+        casual:       "meera",
+        assertive:    "anjali",
     },
 };
 
@@ -160,22 +165,28 @@ export class VoiceRuntime {
     }
 
     /**
-     * REAL TTS — Cartesia Sonic for high-quality, low-latency speech synthesis.
-     * Returns audio buffer (MP3).
+     * REAL TTS — Sarvam AI Text-to-Speech (Bulbul v3).
+     * Takes English text, translates to Hindi, then generates Hindi audio Buffer (WAV).
      */
-    static async generateSpeech(text: string, voiceProfile: any): Promise<Buffer> {
+    static async generateSpeech(text: string, voiceProfile: any, translateToHindi = true): Promise<Buffer> {
         try {
-            console.log(`[VoiceRuntime] Generating speech via Cartesia TTS...`);
-            // Use explicit voiceId from profile if present, otherwise derive from gender/tone
-            const voiceId = voiceProfile?.voiceId || resolveVoiceId(voiceProfile) || DEFAULT_CARTESIA_VOICE_ID;
+            console.log(`[VoiceRuntime] TTS Step 1: LLM text "${text}"`);
+            
+            let targetText = text;
+            if (translateToHindi) {
+                console.log(`[VoiceRuntime] TTS Step 2: Translating English constraint to Hindi...`);
+                targetText = await translateTextToHindi(text);
+                console.log(`[VoiceRuntime] TTS Translated: "${targetText}"`);
+            }
 
-            // synthesizeSpeech returns a base64 encoded MP3 string
-            const base64Audio = await synthesizeSpeech(text, voiceId);
+            console.log(`[VoiceRuntime] TTS Step 3: Generating Hindi speech via Sarvam...`);
+            const voiceId = voiceProfile?.voiceId || DEFAULT_SARVAM_VOICE_ID;
+            
+            // Generate speech using Sarvam
+            return await generateSpeechWithSarvam(targetText, voiceId);
 
-            // Convert to a raw binary Buffer for the downstream pipeline
-            return Buffer.from(base64Audio, "base64");
         } catch (error) {
-            console.error("[VoiceRuntime] TTS Error:", error);
+            console.error("[VoiceRuntime] Sarvam TTS Error:", error);
             throw new Error(`Text-to-speech failed: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
@@ -351,7 +362,7 @@ export class VoiceRuntime {
         const node = VoiceRuntime.routeToNode(intent, convTree);
         const strategy = node?.response_strategy || "Respond helpfully and naturally.";
 
-        // 4. Generate LLM response (real Groq inference)
+        // 4. Generate LLM response (real Groq inference - ENGLISH IN, ENGLISH OUT)
         const responseText = await VoiceRuntime.generateLLMResponse(
             userText,
             systemPrompt,
@@ -360,8 +371,8 @@ export class VoiceRuntime {
         );
         session.transcript.push(`Agent: ${responseText}`);
 
-        // 5. TTS — Real Google TTS synthesis
-        const audio = await VoiceRuntime.generateSpeech(responseText, voiceProfile);
+        // 5. TTS — Translate English to Hindi, then synthesize via Sarvam
+        const audio = await VoiceRuntime.generateSpeech(responseText, voiceProfile, true);
 
         return { text: responseText, audio, intent, userText };
     }
@@ -420,16 +431,9 @@ Return ONLY this JSON:
     }
 
     /**
-     * Get available TTS voices (Cartesia voice UUIDs)
+     * Get available TTS voices (Sarvam)
      */
     static async getAvailableVoices() {
-        return [
-            { Name: "Barbra (Female Professional)", ShortName: CARTESIA_VOICES["en-female-professional"], Gender: "Female", Locale: "en-US" },
-            { Name: "Friendly Female",               ShortName: CARTESIA_VOICES["en-female-friendly"],    Gender: "Female", Locale: "en-US" },
-            { Name: "Casual Female",                 ShortName: CARTESIA_VOICES["en-female-casual"],      Gender: "Female", Locale: "en-US" },
-            { Name: "Professional Male",              ShortName: CARTESIA_VOICES["en-male-professional"],  Gender: "Male",   Locale: "en-US" },
-            { Name: "Friendly Male",                 ShortName: CARTESIA_VOICES["en-male-friendly"],      Gender: "Male",   Locale: "en-US" },
-            { Name: "Casual Male",                   ShortName: CARTESIA_VOICES["en-male-casual"],        Gender: "Male",   Locale: "en-US" },
-        ];
+        return getSarvamVoices();
     }
 }
