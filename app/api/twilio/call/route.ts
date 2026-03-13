@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         await ensureAudioDir();
         
         const voiceProfile = agent.voiceProfile ? JSON.parse(agent.voiceProfile) : {};
-        const voiceId = voiceProfile.voiceId || "anushka-hi";
+        const voiceId = voiceProfile.voiceId || "priya-hi";
         const textGreeting = agent.openingScript ? 
             agent.openingScript.split("\n")[0] || "Namaste" 
             : "Namaste";

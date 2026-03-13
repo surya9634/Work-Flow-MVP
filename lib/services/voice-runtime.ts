@@ -203,7 +203,8 @@ export class VoiceRuntime {
         userText: string,
         systemPrompt: string,
         nodeStrategy: string,
-        conversationHistory: string[]
+        conversationHistory: string[],
+        targetLanguage?: string // New dynamic language param
     ): Promise<string> {
         try {
             const conversationMessages: any[] = [];
@@ -225,8 +226,12 @@ export class VoiceRuntime {
                 }
             }
 
+            const languageInstruction = targetLanguage && targetLanguage !== 'English' 
+                ? `\n\nIMPORTANT LANGUAGE INSTRUCTION: You MUST format your response completely in ${targetLanguage}. Do not use English unless the user explicitly requests it. Your underlying language model processing happens in English, but your output text MUST be in ${targetLanguage}.`
+                : "";
+
             const messages: any[] = [
-                { role: "system", content: `${systemPrompt}\n\nKeep your responses extremely brief, 1-2 sentences maximum. Conversational strategy: ${nodeStrategy}` },
+                { role: "system", content: `${systemPrompt}\n\nKeep your responses extremely brief, 1-2 sentences maximum. Conversational strategy: ${nodeStrategy}${languageInstruction}` },
                 ...conversationMessages
             ];
 

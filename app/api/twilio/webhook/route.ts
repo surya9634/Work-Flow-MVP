@@ -82,8 +82,21 @@ export async function POST(req: NextRequest) {
             return new NextResponse(twiml.toString(), { headers: { 'Content-Type': 'text/xml' } });
         }
 
+        const agent = activeCall.agent;
         const agentId = activeCall.agentId;
-        const voiceId = "priya-hi"; // Simplified since agent from include might be typed weirdly or missing exact profile struct without complex generic type.
+        const voiceProfile = agent?.voiceProfile ? JSON.parse(agent.voiceProfile) : {};
+        const voiceId = voiceProfile.voiceId || "priya-hi"; 
+        
+        let targetLanguage = "Hindi"; // Default fallback
+        if (voiceId.endsWith("-en")) targetLanguage = "Indian English";
+        if (voiceId.endsWith("-hi")) targetLanguage = "Hindi";
+        if (voiceId.endsWith("-ta")) targetLanguage = "Tamil";
+        if (voiceId.endsWith("-te")) targetLanguage = "Telugu";
+        if (voiceId.endsWith("-ml")) targetLanguage = "Malayalam";
+        if (voiceId.endsWith("-mr")) targetLanguage = "Marathi";
+        if (voiceId.endsWith("-bn")) targetLanguage = "Bengali";
+        if (voiceId.endsWith("-gu")) targetLanguage = "Gujarati";
+        if (voiceId.endsWith("-kn")) targetLanguage = "Kannada";
 
         if (!agentId || !activeCall.leadId) {
              console.warn("Missing agent/lead correlation for call.");
@@ -154,7 +167,8 @@ export async function POST(req: NextRequest) {
                 userTranscript,
                 activeCall.agent?.systemPrompt || "",
                 "Friendly sales approach", // Default strategy
-                historyLines
+                historyLines,
+                targetLanguage
             );
         }
 
