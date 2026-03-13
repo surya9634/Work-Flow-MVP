@@ -63,18 +63,26 @@ export interface ExotelCallResponse {
  * Initiate an outbound call via Exotel REST API.
  */
 export async function makeOutboundCall(opts: ExotelCallOptions): Promise<ExotelCallResponse> {
+    const normalizedTo = normalizeForExotel(opts.to);
+    const normalizedFrom = normalizeForExotel(opts.callerId);
+
     const body = new URLSearchParams({
-        From:         opts.callerId,
-        To:           normalizeForExotel(opts.to),
-        CallerId:     opts.callerId,
+        From:         normalizedFrom,
+        To:           normalizedTo,
+        CallerId:     normalizedFrom,
         Url:          opts.webhookUrl,
         TimeLimit:    String(opts.timeLimit ?? 1800),
-        Record:       "false",   // we handle recording ourselves via ExoML
+        Record:       "false",
         ...(opts.statusCallbackUrl && { StatusCallbackUrl: opts.statusCallbackUrl }),
         ...(opts.customField && { CustomField: opts.customField }),
     });
 
-    const res = await fetch(`${baseUrl()}/Calls/connect.json`, {
+    const url = `${baseUrl()}/Calls/connect.json`;
+    console.log(`[Exotel] Making outbound call: From=${normalizedFrom} To=${normalizedTo}`);
+    console.log(`[Exotel] Webhook URL: ${opts.webhookUrl}`);
+    console.log(`[Exotel] API endpoint: https://${SUBDOMAIN}/v1/Accounts/${SID}/Calls/connect.json`);
+
+    const res = await fetch(url, {
         method:  "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body,
@@ -82,10 +90,12 @@ export async function makeOutboundCall(opts: ExotelCallOptions): Promise<ExotelC
 
     if (!res.ok) {
         const err = await res.text().catch(() => "unknown");
+        console.error(`[Exotel] makeOutboundCall failed (${res.status}):`, err);
         throw new Error(`[Exotel] makeOutboundCall failed (${res.status}): ${err}`);
     }
 
     const json = await res.json();
+    console.log(`[Exotel] Call response:`, JSON.stringify(json, null, 2));
     const call = json?.Call;
     return {
         callSid: call?.Sid      || "",
