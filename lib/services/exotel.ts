@@ -14,9 +14,13 @@ const API_TOKEN = process.env.EXOTEL_API_TOKEN  || "";
 const SID       = process.env.EXOTEL_ACCOUNT_SID || "";
 const SUBDOMAIN = process.env.EXOTEL_SUBDOMAIN  || "api.exotel.com";
 
-// Base URL — Exotel uses HTTP Basic Auth with key:token
+// Base URL without embedded credentials (native fetch rejects user:pass@host URLs)
 const baseUrl = () =>
-    `https://${API_KEY}:${API_TOKEN}@${SUBDOMAIN}/v1/Accounts/${SID}`;
+    `https://${SUBDOMAIN}/v1/Accounts/${SID}`;
+
+// HTTP Basic Auth header
+const authHeader = () =>
+    `Basic ${Buffer.from(`${API_KEY}:${API_TOKEN}`).toString("base64")}`;
 
 /**
  * Detect if a phone number is Indian (+91 or starts with 91).
@@ -84,7 +88,10 @@ export async function makeOutboundCall(opts: ExotelCallOptions): Promise<ExotelC
 
     const res = await fetch(url, {
         method:  "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": authHeader(),
+        },
         body,
     });
 
@@ -109,7 +116,9 @@ export async function makeOutboundCall(opts: ExotelCallOptions): Promise<ExotelC
  * Get details of a call by CallSid.
  */
 export async function getCallDetails(callSid: string) {
-    const res = await fetch(`${baseUrl()}/Calls/${callSid}.json`);
+    const res = await fetch(`${baseUrl()}/Calls/${callSid}.json`, {
+        headers: { "Authorization": authHeader() },
+    });
     if (!res.ok) return null;
     const json = await res.json();
     return json?.Call || null;
