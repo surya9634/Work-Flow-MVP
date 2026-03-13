@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { buildExomlTurn, buildExomlFinal, buildExomlHangup } from "@/lib/services/exotel";
-import { synthesizeSpeech } from "@/lib/tts-server";
+import { generateSpeechWithSarvam, translateText, getVoiceById } from "@/lib/services/sarvam";
 import { VoiceRuntime } from "@/lib/services/voice-runtime";
 import { getMemoryContext } from "@/lib/services/lead-memory";
 import { runPostCallPipeline } from "@/lib/services/call-summarizer";
@@ -195,12 +195,15 @@ export { POST as GET };
 /**
  * Generate TTS + save to temp file. Returns base64 audio.
  */
-async function safeTTS(text: string, callLogId: string, suffix: string): Promise<string> {
+async function safeTTS(text: string, callLogId: string, suffix: string, voiceId = "meera-hi"): Promise<string> {
     try {
-        const b64 = await synthesizeSpeech(text);
-        const fp  = path.join(AUDIO_DIR(), `${callLogId}_${suffix}.mp3`);
-        fs.writeFileSync(fp, Buffer.from(b64, "base64"));
-        return b64;
+        const voice = getVoiceById(voiceId);
+        const targetLang = voice.language;
+        const translatedText = targetLang === "en-IN" ? text : await translateText(text, targetLang);
+        const audioBuffer = await generateSpeechWithSarvam(translatedText, voiceId);
+        const fp = path.join(AUDIO_DIR(), `${callLogId}_${suffix}.mp3`);
+        fs.writeFileSync(fp, audioBuffer);
+        return audioBuffer.toString("base64");
     } catch {
         return "";
     }

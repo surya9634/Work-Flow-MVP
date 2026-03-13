@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, AuthError } from "@/lib/auth";
 import { makeOutboundCall } from "@/lib/services/exotel";
-import { synthesizeSpeech } from "@/lib/tts-server";
+import { generateSpeechWithSarvam, translateText, getVoiceById } from "@/lib/services/sarvam";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -49,8 +49,13 @@ export async function POST(req: Request) {
 
         try {
             const voiceProfile = agent.voiceProfile ? JSON.parse(agent.voiceProfile) : {};
-            const voiceId = voiceProfile.voiceId;
-            const base64Audio = await synthesizeSpeech(openingText, voiceId);
+            const voiceId = voiceProfile.voiceId || "meera-hi";
+            const voice = getVoiceById(voiceId);
+            const targetLang = voice.language;
+            const textToSpeak = targetLang === "en-IN"
+                ? openingText
+                : await translateText(openingText, targetLang);
+            const audioBuffer = await generateSpeechWithSarvam(textToSpeak, voiceId);
             const audioDir = path.join(os.tmpdir(), "exotel-audio");
             if (!fs.existsSync(audioDir)) fs.mkdirSync(audioDir, { recursive: true });
 
@@ -60,7 +65,7 @@ export async function POST(req: Request) {
             });
 
             openingAudioPath = path.join(audioDir, `${callLog.id}_0.mp3`);
-            fs.writeFileSync(openingAudioPath, Buffer.from(base64Audio, "base64"));
+            fs.writeFileSync(openingAudioPath, audioBuffer);
 
             // Webhook URL Exotel will hit when prospect answers
             const webhookUrl = `${appUrl}/api/exotel/webhook?callLogId=${callLog.id}&agentId=${agentId}&leadId=${leadId}&turn=0`;
