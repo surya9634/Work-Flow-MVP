@@ -62,9 +62,11 @@ export async function POST(req: Request) {
             const transcription = await groq.audio.transcriptions.create({
                 file: audioAsFile,
                 model: "whisper-large-v3-turbo",
-                response_format: "json",
+                response_format: "text",  // plain text is faster than JSON parsing
             })
-            userTranscript = transcription.text?.trim() || ""
+            userTranscript = (typeof transcription === "string"
+                ? transcription
+                : (transcription as any).text || "").trim()
         } catch (sttErr) {
             console.error("[Sandbox Voice] STT error:", sttErr)
             return NextResponse.json({ error: "Speech recognition failed." }, { status: 500 })
@@ -90,7 +92,7 @@ export async function POST(req: Request) {
         const llmRes = await groq.chat.completions.create({
             model: llmModel,
             messages: [{ role: "system", content: systemPrompt }, ...conversationMessages],
-            max_tokens: 120,
+            max_tokens: 60,   // voice turns must be short; 60 tokens ≈ 2 sentences
             temperature: 0.7,
         })
         const agentResponse = llmRes.choices[0]?.message?.content?.trim() || "I'm here to help."

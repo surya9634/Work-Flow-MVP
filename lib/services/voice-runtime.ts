@@ -258,9 +258,9 @@ export class VoiceRuntime {
 
             const completion = await groq.chat.completions.create({
                 messages,
-                model: "llama-3.3-70b-versatile",
+                model: "llama-3.1-8b-instant",  // fastest Groq model — ideal for sub-sentence voice turns
                 temperature: 0.7,
-                max_tokens: 150,
+                max_tokens: 60,                  // voice responses must be short; fewer tokens = faster TTS
                 tools: tools,
                 tool_choice: "auto",
             });

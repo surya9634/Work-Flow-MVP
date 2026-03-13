@@ -1,10 +1,11 @@
 /**
  * CARTESIA TTS ENGINE
  *
- * Uses Cartesia's Sonic model via their REST API to generate high-quality,
- * low-latency speech. Requires CARTESIA_API_KEY in the environment.
+ * Uses Cartesia's Sonic model via their SSE streaming API for minimal latency.
+ * Streaming allows the HTTP response to begin immediately as audio is generated
+ * rather than waiting for the full file to be synthesised.
  *
- * API docs: https://docs.cartesia.ai/api-reference/tts/bytes
+ * API docs: https://docs.cartesia.ai/api-reference/tts/sse
  */
 
 // ─── Cartesia Voice Library (curated defaults) ──────────────────────────────
@@ -68,36 +69,85 @@ export async function synthesizeSpeech(
     }
 
     const resolvedVoiceId = resolveVoiceId(voiceId);
-    console.log(`[CartesiaTTS] Synthesizing with voice=${resolvedVoiceId} (requested: ${voiceId})`);
 
-    const response = await fetch("https://api.cartesia.ai/tts/bytes", {
+    // Use the SSE streaming endpoint — Cartesia begins sending audio chunks
+    // immediately as they are synthesised, so we get the first byte much sooner
+    // than the non-streaming /tts/bytes endpoint.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8 s hard cap
+
+    const response = await fetch("https://api.cartesia.ai/tts/sse", {
         method: "POST",
+        signal: controller.signal,
         headers: {
             "Cartesia-Version": "2024-06-10",
-            "X-API-Key": apiKey,
-            "Content-Type": "application/json",
+            "X-API-Key":        apiKey,
+            "Content-Type":     "application/json",
         },
         body: JSON.stringify({
             model_id: "sonic-2",
             transcript: text,
-            voice: {
-                mode: "id",
-                id: resolvedVoiceId,
-            },
+            voice: { mode: "id", id: resolvedVoiceId },
             output_format: {
-                container: "mp3",
-                encoding: "mp3",
-                sample_rate: 44100,
+                container:   "mp3",
+                encoding:    "mp3",
+                // 22050 Hz is plenty for voice; half the data → half the transfer time
+                sample_rate: 22050,
             },
-            language: "en",
+            language:         "en",
+            // Stream: start sending chunks as soon as they're ready
+            stream:           true,
         }),
     });
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
         const errBody = await response.text().catch(() => "unknown");
         throw new Error(`[CartesiaTTS] API error ${response.status}: ${errBody}`);
     }
 
-    const audioBuffer = await response.arrayBuffer();
-    return Buffer.from(audioBuffer).toString("base64");
+    // Parse the SSE stream and collect all audio chunks
+    // Each SSE event looks like:
+    //   data: {"type":"chunk","data":{"audio":"<base64mp3>", ...}}
+    //   data: {"type":"done"}
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("[CartesiaTTS] No readable stream in SSE response");
+
+    const audioChunks: Uint8Array[] = [];
+    const decoder = new TextDecoder();
+    let leftover = "";
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        leftover += decoder.decode(value, { stream: true });
+        const lines = leftover.split("\n");
+        leftover = lines.pop() ?? ""; // keep incomplete last line
+
+        for (const line of lines) {
+            if (!line.startsWith("data:")) continue;
+            const jsonStr = line.slice(5).trim();
+            if (!jsonStr || jsonStr === "[DONE]") continue;
+
+            try {
+                const evt = JSON.parse(jsonStr);
+                if (evt.type === "chunk" && evt.data?.audio) {
+                    // audio is base64-encoded MP3 chunk
+                    audioChunks.push(Buffer.from(evt.data.audio, "base64"));
+                }
+            } catch {
+                // malformed line — skip
+            }
+        }
+    }
+
+    if (audioChunks.length === 0) {
+        throw new Error("[CartesiaTTS] SSE stream returned no audio chunks");
+    }
+
+    // Concatenate all chunks and return as base64
+    const combined = Buffer.concat(audioChunks);
+    return combined.toString("base64");
 }
