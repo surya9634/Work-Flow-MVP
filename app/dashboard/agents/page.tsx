@@ -58,7 +58,7 @@ export default function AgentsPage() {
     const [editOpeningScript, setEditOpeningScript] = useState("")
     const [editVoiceId, setEditVoiceId] = useState(DEFAULT_VOICE_ID)
     const [editLlmModel, setEditLlmModel] = useState("llama-3.3-70b-versatile")
-    const [voiceCategory, setVoiceCategory] = useState<VoiceCategory>("English")
+    const [voiceCategory, setVoiceCategory] = useState<VoiceCategory>("Hindi")
     const [voiceGender, setVoiceGender] = useState<"all" | "female" | "male">("all")
 
     const fetchAgents = () => {
@@ -132,7 +132,7 @@ export default function AgentsPage() {
             const data = await res.json()
 
             if (data.audioBase64) {
-                const audio = new Audio(`data:audio/mpeg;base64,${data.audioBase64}`)
+                const audio = new Audio(`data:audio/wav;base64,${data.audioBase64}`)
                 audio.onended = () => setIsPreviewing(null)
                 await audio.play()
                 console.log(`[Realistic-Preview] Success for: ${voiceId}`)
@@ -340,7 +340,7 @@ export default function AgentsPage() {
                                                         : "text-zinc-500 hover:text-zinc-300"
                                                 }`}
                                             >
-                                                {cat === "Indian English" ? "IN English" : cat}
+                                                {cat}
                                             </button>
                                         ))}
                                     </div>

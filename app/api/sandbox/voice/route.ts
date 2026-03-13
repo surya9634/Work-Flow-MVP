@@ -1,19 +1,34 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { requireAuth, getAuthUserId, AuthError } from "@/lib/auth"
+import { requireAuth, AuthError } from "@/lib/auth"
 import Groq from "groq-sdk"
-import fs from "fs"
-import { synthesizeSpeech, DEFAULT_CARTESIA_VOICE_ID } from "@/lib/tts-server"
+import { generateSpeechWithSarvam, translateText, getVoiceById, getSarvamVoices } from "@/lib/services/sarvam"
 import { getMemoryContext } from "@/lib/services/lead-memory"
 import { runPostCallPipeline } from "@/lib/services/call-summarizer"
 import { debitCallCredits } from "@/lib/services/credits"
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
+const DEFAULT_VOICE_ID = "meera-hi";
+
+/**
+ * GET /api/sandbox/voice
+ * Returns list of available Sarvam voices for the UI dropdown.
+ */
+export async function GET() {
+    try {
+        await requireAuth();
+        return NextResponse.json({ voices: getSarvamVoices() });
+    } catch (error) {
+        if (error instanceof AuthError) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return NextResponse.json({ error: "Failed to load voices" }, { status: 500 });
+    }
+}
+
 /**
  * POST /api/sandbox/voice
  * Voice sandbox — STT→LLM→TTS returning JSON with base64 audio.
- * Uses robust multi-accent mapping for persona variety.
+ * Uses Sarvam AI for TTS across all Indian languages.
  */
 export async function POST(req: Request) {
     try {
@@ -34,7 +49,7 @@ export async function POST(req: Request) {
         // ── 1. Load agent config & voice selection ──────────────
         let systemPrompt = "You are a helpful AI sales agent in a live voice test. Keep responses short, natural, and conversational — 1-3 sentences max."
         let agentName = "Agent"
-        let selectedVoiceId = requestVoiceId || DEFAULT_CARTESIA_VOICE_ID // Default Cartesia voice
+        let selectedVoiceId = requestVoiceId || DEFAULT_VOICE_ID
         let llmModel = "llama-3.1-8b-instant"
 
         if (agentId) {
@@ -53,8 +68,7 @@ export async function POST(req: Request) {
             }
         }
 
-        console.log(`[Sandbox Voice] Persona: ${selectedVoiceId} for ${agentName}`)
-        try { fs.appendFileSync("api_debug.txt", `[${new Date().toISOString()}] Sandbox Voice: agent=${agentName}\n`) } catch (e) { }
+        console.log(`[Sandbox Voice] Using Sarvam voice: ${selectedVoiceId} for agent: ${agentName}`)
 
         // ── 2. STT via Groq Whisper ─────────────────────────────
         const audioBuffer = Buffer.from(await audioFile.arrayBuffer())
@@ -65,7 +79,7 @@ export async function POST(req: Request) {
             const transcription = await groq.audio.transcriptions.create({
                 file: audioAsFile,
                 model: "whisper-large-v3-turbo",
-                response_format: "text",  // plain text is faster than JSON parsing
+                response_format: "text",
             })
             userTranscript = (typeof transcription === "string"
                 ? transcription
@@ -102,30 +116,40 @@ export async function POST(req: Request) {
         const llmRes = await groq.chat.completions.create({
             model: llmModel,
             messages: [{ role: "system", content: systemPromptWithMemory }, ...conversationMessages],
-            max_tokens: 60,   // voice turns must be short; 60 tokens ≈ 2 sentences
+            max_tokens: 60,
             temperature: 0.7,
         })
         const agentResponse = llmRes.choices[0]?.message?.content?.trim() || "I'm here to help."
 
-        // ── 5. TTS ───────────────────────────────────────────
+        // ── 5. TTS via Sarvam (translated to voice language) ────
         let audioBase64: string | null = null
         try {
-            audioBase64 = await synthesizeSpeech(agentResponse, selectedVoiceId)
+            // Look up the voice's target language
+            const voice = getVoiceById(selectedVoiceId);
+            const targetLang = voice.language;
+
+            // If not English, translate LLM output to the target language
+            const textToSpeak = targetLang === "en-IN"
+                ? agentResponse
+                : await translateText(agentResponse, targetLang);
+
+            console.log(`[Sandbox Voice] TTS: lang=${targetLang} text="${textToSpeak.slice(0, 60)}..."`);
+
+            // Generate audio with Sarvam
+            const audioBuffer = await generateSpeechWithSarvam(textToSpeak, selectedVoiceId);
+            audioBase64 = audioBuffer.toString("base64");
         } catch (ttsErr: any) {
-            console.error(`[Sandbox Voice] TTS failed:`, ttsErr)
+            console.error(`[Sandbox Voice] Sarvam TTS failed:`, ttsErr)
         }
 
         // ── 6. Post-call pipeline (async, non-blocking) ──────
-        // Runs after response is sent: summary, memory, objections, credits
         if (isLastTurn || history.length >= 18) {
             const fullTranscript = [
                 ...history,
                 `User: ${userTranscript}`,
                 `Agent: ${agentResponse}`,
             ].join("\n")
-            const callDurationEst = Math.max(30, history.length * 15) // ~15s per turn
-
-            // Fire-and-forget (no await)
+            const callDurationEst = Math.max(30, history.length * 15)
             void Promise.all([
                 agentId && leadId
                     ? runPostCallPipeline("", fullTranscript, agentId, leadId)
@@ -139,7 +163,7 @@ export async function POST(req: Request) {
             response: agentResponse,
             audioBase64,
             agentName,
-            voiceId: selectedVoiceId
+            voiceId: selectedVoiceId,
         })
     } catch (error) {
         if (error instanceof AuthError) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
