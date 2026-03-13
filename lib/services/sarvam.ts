@@ -122,6 +122,20 @@ const LEGACY_SPEAKER_LANG: Record<string, string> = {
     "manisha": "bn-IN", "vidya": "gu-IN", "arya": "kn-IN"
 };
 
+// Map old v1 voice IDs (like 'meera-hi') to the new v3 voice IDs (like 'anushka-hi')
+const LEGACY_VOICE_MAP: Record<string, string> = {
+    // Hindi
+    "meera-hi": "anushka-hi",
+    "pavithra-hi": "priya-hi",
+    "maitreyi-hi": "neha-hi",
+    "arvind-hi": "abhilash-hi",
+    "amol-hi": "rahul-hi",
+    "amartya-hi": "rohan-hi",
+    
+    // Default fallback if a specific translation isn't listed
+    // (You can add more specific mappings here if needed)
+};
+
 // ─── API FUNCTIONS ────────────────────────────────────────────────
 
 /**
@@ -194,19 +208,22 @@ export async function translateTextToHindi(text: string): Promise<string> {
  */
 export async function generateSpeechWithSarvam(
     text: string,
-    voiceId: string = "meera-hi"
+    voiceId: string = "anushka-hi"
 ): Promise<Buffer> {
-    let speaker = voiceId;
+    // Map legacy ids directly to the new ids seamlessly
+    const robustVoiceId = LEGACY_VOICE_MAP[voiceId] || voiceId;
+    
+    let speaker = robustVoiceId;
     let langCode = "hi-IN";
 
     // Try compound voice ID first (preferred)
-    const voice = SARVAM_VOICES.find(v => v.id === voiceId);
+    const voice = SARVAM_VOICES.find(v => v.id === robustVoiceId);
     if (voice) {
         speaker = voice.speaker;
         langCode = voice.language;
     } else {
         // Fallback: treat voiceId as raw speaker name + resolve language
-        langCode = LEGACY_SPEAKER_LANG[voiceId] || "hi-IN";
+        langCode = LEGACY_SPEAKER_LANG[robustVoiceId] || "hi-IN";
     }
 
     const res = await fetch(`${BASE_URL}/text-to-speech`, {

@@ -9,7 +9,7 @@ import { debitCallCredits } from "@/lib/services/credits"
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
-const DEFAULT_VOICE_ID = "meera-hi";
+const DEFAULT_VOICE_ID = "anushka-hi";
 
 /**
  * GET /api/sandbox/voice

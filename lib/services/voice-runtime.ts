@@ -14,7 +14,7 @@ import os from "os";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
-const DEFAULT_SARVAM_VOICE_ID = "meera-hi";
+const DEFAULT_SARVAM_VOICE_ID = "anushka-hi";
 
 /**
  * VOICE RUNTIME ENGINE
@@ -46,16 +46,16 @@ export interface CallSession {
 // Maps voice profile gender/tone settings to Sarvam compound voice IDs.
 const VOICE_MAP: Record<string, Record<string, string>> = {
     male: {
-        professional: "arvind-hi",
-        friendly:     "amol-hi",
-        casual:       "amol-hi",
-        assertive:    "amartya-hi",
+        professional: "abhilash-hi",
+        friendly:     "rahul-hi",
+        casual:       "rohan-hi",
+        assertive:    "abhilash-hi",
     },
     female: {
-        professional: "pavithra-hi",
-        friendly:     "meera-hi",
-        casual:       "maitreyi-hi",
-        assertive:    "pavithra-hi",
+        professional: "anushka-hi",
+        friendly:     "priya-hi",
+        casual:       "neha-hi",
+        assertive:    "anushka-hi",
     },
 };
 
