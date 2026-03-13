@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, AuthError } from "@/lib/auth";
-import { makeOutboundCall, isIndianNumber } from "@/lib/services/exotel";
+import { makeOutboundCall } from "@/lib/services/exotel";
 import { synthesizeSpeech } from "@/lib/tts-server";
 import fs from "fs";
 import path from "path";
@@ -41,9 +41,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "EXOTEL_VIRTUAL_NUMBER not configured" }, { status: 500 });
         }
 
-        if (!isIndianNumber(lead.phone)) {
-            return NextResponse.json({ error: "Use Twilio for non-Indian numbers" }, { status: 400 });
-        }
+        // removed isIndianNumber checking, all calls route via Exotel
 
         // Pre-generate the opening TTS audio and store in /tmp
         const openingText = agent.openingScript || `Hi, this is ${agent.name}. Do you have a quick moment?`;

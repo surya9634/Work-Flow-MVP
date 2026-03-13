@@ -1,0 +1,302 @@
+[
+  {
+    "id": "39d518b7-fd0b-4676-9b8b-29d64ff31e12",
+    "name": "Aarav - Old Time Storyteller",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "e2d48e7b-cd73-4c4c-bc1e-f232580e8709",
+    "name": "Adrian - Explorer",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "3ccc4544-84f7-45e3-ae57-5c52b5a1fac6",
+    "name": "Aiden - Yogi",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "80c81aee-b6ad-4d12-9af8-a9c79c2e141d",
+    "name": "Aina - Meditation Guru",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "87748186-23bb-4158-a1eb-332911b0b708",
+    "name": "Alaric - Wizard",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "9a0894a9-28f0-436e-9a1d-e92bccbce4dd",
+    "name": "Albert - Firm Guide",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "50d6beb4-80ea-4802-8387-6c948fe84208",
+    "name": "Alfred - Cheeky Person",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "c8f7835e-28a3-4f0c-80d7-c1302ac62aae",
+    "name": "Alistair - Composed Consultant",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "9287676d-f0cc-423f-ac03-3b3c7242f091",
+    "name": "Allen - Modern Voice",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "2747b6cf-fa34-460c-97db-267566918881",
+    "name": "Allie - Natural Conversationalist",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "a7a59115-2425-4192-844c-1e98ec7d6877",
+    "name": "Amber - Warm Support Agent",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "043cfc81-d69f-4bee-ae1e-7862cb358650",
+    "name": "Amelia - Instructor",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "ec1e269e-9ca0-402f-8a18-58e0e022355a",
+    "name": "Ariana - Kind Friend",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "1f575487-6f3d-40e0-862a-814f55b5fb15",
+    "name": "Ariane - Captivating Tone",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "3f04e815-3260-4f50-8fd9-af9c657be4c2",
+    "name": "Arvin - Reliable Guide",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "00967b2f-88a6-4a31-8153-110a92134b9f",
+    "name": "Asher - Podcaster",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "87041166-c212-4838-9028-05d7437df750",
+    "name": "Aubrey - Easygoing Pal",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "8f091740-3df1-4795-8bd9-dc62d88e5131",
+    "name": "Aurora - Fairy Princess",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "cccc21e8-5bcf-4ff0-bc7f-be4e40afc544",
+    "name": "Avery - Gaming Girl",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "13524ffb-a918-499a-ae97-c98c7c4408c4",
+    "name": "Barry - Helper",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "4fb26a05-57de-4d21-855a-f51adae44f38",
+    "name": "Barry 2.0 - Helper",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "bbee10a8-4f08-4c5c-8282-e69299115055",
+    "name": "Ben - Helpful Man",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "3c0f09d6-e0d7-499c-a594-70c5b7b93048",
+    "name": "Benedict - Measured Mediator",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "7cf0e2b1-8daf-4fe4-89ad-f6039398f359",
+    "name": "Benedict - Royal Narrator",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "2d5b8c3a-116c-4741-acaf-ba4fa289eba2",
+    "name": "Benji - Joyful Spirit",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "a167e0f3-df7e-4d52-a9c3-f949145efdab",
+    "name": "Blake - Helpful Agent",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "5cad89c9-d88a-4832-89fb-55f2f16d13d3",
+    "name": "Brandon - Confident Guy",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "607167f6-9bf2-473c-accc-ac7b3b66b30b",
+    "name": "Brenda - Host",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "3d808d23-cb09-4c39-8afd-528e209cba4f",
+    "name": "Brent - Steady Conversationalist",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "46788d8e-cdf9-4d5c-9125-094eb2e4d44c",
+    "name": "Brittany - Intense Performer",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "e07c00bc-4134-4eae-9ea4-1a55fb45746b",
+    "name": "Brooke - Big Sister",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "2948c301-9211-4112-8f36-4c3fc836ef12",
+    "name": "Bryce - Clear Explainer",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "b9cf5ec3-eaa4-46a5-a5b2-b0d0f22395a2",
+    "name": "Caleb - Seasoned Pro",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "00a77add-48d5-4ef6-8157-71e5437b282d",
+    "name": "Callie - Encourager",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "da4a4eff-3b7e-4846-8f70-f075ff61222c",
+    "name": "Callum - Brand Spokesperson",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "03496517-369a-4db1-8236-3d3ae459ddf7",
+    "name": "Calypso - ASMR Lady",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "df872fcd-da17-4b01-a49f-a80d7aaee95e",
+    "name": "Cameron - Chill Companion",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "55deba52-bc73-4481-ab69-9c8831c8a7c3",
+    "name": "Camille - Friendly Expert",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "ed82c17b-4704-4d34-be43-5d19065acdf1",
+    "name": "Carl - Steady Storyteller",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "1fc31370-81b1-4588-9c1a-f93793c6e01d",
+    "name": "Carlo - Roman Guide",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "bf991597-6c13-47e4-8411-91ec2de5c466",
+    "name": "Carol - Task Coach",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "f9836c6e-a0bd-460e-9d3c-f7299fa60f94",
+    "name": "Caroline - Southern Guide",
+    "lang": "en",
+    "gender": "feminine"
+  },
+  {
+    "id": "0b32066b-2bcc-44b9-89ab-0223a09d1606",
+    "name": "Carson - Angry Friendly Support",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "86e30c1d-714b-4074-a1f2-1cb6b552fb49",
+    "name": "Carson - Curious Conversationalist",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "ee8b13e7-98af-4b15-89d1-8d402be10c94",
+    "name": "Carson - Disgusted Friendly Support",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "96c64eb5-a945-448f-9710-980abe7a514c",
+    "name": "Carson - Friendly Support",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "4df027cb-2920-4a1f-8c34-f21529d5c3fe",
+    "name": "Carson - Friendly Support",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "3246e36c-ac8c-418d-83cd-4eaad5a3b887",
+    "name": "Carson - Sad Friendly Support",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "5c43e078-5ba4-4e1f-9639-8d85a403f76a",
+    "name": "Carson - Scared Friendly Support",
+    "lang": "en",
+    "gender": "masculine"
+  },
+  {
+    "id": "66f5935b-af2e-4ec9-bb3e-59112e9ddc93",
+    "name": "Carson - Surprised Friendly Support",
+    "lang": "en",
+    "gender": "masculine"
+  }
+]

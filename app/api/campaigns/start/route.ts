@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import twilio from "twilio";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { groq } from "@/lib/groq";
-import { makeOutboundCall, isIndianNumber } from "@/lib/services/exotel";
+import { makeOutboundCall } from "@/lib/services/exotel";
 
 export async function POST(req: Request) {
     try {
@@ -98,52 +97,27 @@ export async function POST(req: Request) {
                     const baseUrl = `${protocol}://${host}`;
 
                     try {
-                        if (isIndianNumber(lead.phone)) {
-                            console.log(`[Campaign] Routing Indian number ${lead.phone} to Exotel...`);
-                            
-                            // EXOTEL ROUTING
-                            const webhookUrl = `${baseUrl}/api/exotel/webhook`;
-                            const fromNumber = process.env.EXOTEL_VIRTUAL_NUMBER || "";
-                            
-                            if (!fromNumber || !process.env.EXOTEL_API_KEY) {
-                                console.error("[Campaign] Exotel credentials missing in .env.");
-                                continue;
-                            }
-
-                            // Pass agentId and leadId via custom field so the webhook knows who it is
-                            const customField = JSON.stringify({ agentId: campaign.agentId, leadId: lead.id, campaignId: campaign.id });
-                            
-                            await makeOutboundCall({
-                                to: lead.phone,
-                                callerId: fromNumber,
-                                webhookUrl: webhookUrl,
-                                customField: customField
-                            });
-                            queuedCalls++;
-
-                        } else {
-                            console.log(`[Campaign] Routing international number ${lead.phone} to Twilio...`);
-                            
-                            // TWILIO ROUTING (Existing logic)
-                            const accountSid = process.env.TWILIO_ACCOUNT_SID;
-                            const authToken = process.env.TWILIO_AUTH_TOKEN;
-                            const fromNumber = process.env.TWILIO_PHONE_NUMBER;
-
-                            if (!accountSid || !authToken || !fromNumber) {
-                                console.error("[Campaign] Twilio credentials missing.");
-                                continue;
-                            }
-
-                            const client = twilio(accountSid, authToken);
-                            
-                            await client.calls.create({
-                                url: `${baseUrl}/api/twilio/outbound?agentId=${campaign.agentId}&leadId=${lead.id}`,
-                                to: lead.phone,
-                                from: fromNumber,
-                                record: false
-                            });
-                            queuedCalls++;
+                        console.log(`[Campaign] Routing number ${lead.phone} to Exotel...`);
+                        
+                        // EXOTEL ROUTING
+                        const webhookUrl = `${baseUrl}/api/exotel/webhook`;
+                        const fromNumber = process.env.EXOTEL_VIRTUAL_NUMBER || "";
+                        
+                        if (!fromNumber || !process.env.EXOTEL_API_KEY) {
+                            console.error("[Campaign] Exotel credentials missing in .env.");
+                            continue;
                         }
+
+                        // Pass agentId and leadId via custom field so the webhook knows who it is
+                        const customField = JSON.stringify({ agentId: campaign.agentId, leadId: lead.id, campaignId: campaign.id });
+                        
+                        await makeOutboundCall({
+                            to: lead.phone,
+                            callerId: fromNumber,
+                            webhookUrl: webhookUrl,
+                            customField: customField
+                        });
+                        queuedCalls++;
                     } catch (e) {
                         console.error(`[Campaign] Failed to dial voice lead ${lead.phone}:`, e);
                     }

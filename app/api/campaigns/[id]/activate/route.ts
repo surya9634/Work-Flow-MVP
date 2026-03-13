@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import twilio from "twilio"
 import { requireAuth, AuthError } from "@/lib/auth"
 import { groq } from "@/lib/groq"
-import { makeOutboundCall, isIndianNumber } from "@/lib/services/exotel"
+import { makeOutboundCall } from "@/lib/services/exotel"
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -119,57 +118,28 @@ export async function POST(_req: Request, context: RouteContext) {
                 if (campaign.type === "VOICE" || campaign.type === "BOTH" || campaign.type === "OUTBOUND") {
                     try {
                         console.log(`[Voice Dispatch] Attempting dial for lead ${lead.phone}`);
+                        console.log(`[Voice Dispatch] Routing number ${lead.phone} to Exotel...`);
                         
-                        if (isIndianNumber(lead.phone)) {
-                            console.log(`[Voice Dispatch] Routing Indian number ${lead.phone} to Exotel...`);
-                            
-                            // EXOTEL ROUTING
-                            const webhookUrl = `${appUrl}/api/exotel/webhook`;
-                            const fromNumber = process.env.EXOTEL_VIRTUAL_NUMBER || "";
-                            
-                            if (!fromNumber || !process.env.EXOTEL_API_KEY) {
-                                console.error("[Campaign Activate] Exotel credentials missing in .env.");
-                                continue;
-                            }
-
-                            // Pass agentId and leadId via custom field so the webhook knows who it is
-                            const customField = JSON.stringify({ agentId: campaign.agentId, leadId: lead.id, campaignId: campaign.id });
-                            
-                            const exotelCall = await makeOutboundCall({
-                                to: lead.phone,
-                                callerId: fromNumber,
-                                webhookUrl: webhookUrl,
-                                customField: customField
-                            });
-                            console.log(`[Voice Dispatch] Exotel Call successfully queued with SID: ${exotelCall.callSid}`);
-                            queuedCalls++;
-
-                        } else {
-                            console.log(`[Voice Dispatch] Routing international number ${lead.phone} to Twilio...`);
-                            
-                            // TWILIO ROUTING
-                            const accountSid = process.env.TWILIO_ACCOUNT_SID;
-                            const authToken = process.env.TWILIO_AUTH_TOKEN;
-                            const fromNumber = process.env.TWILIO_PHONE_NUMBER;
-
-                            if (!accountSid || !authToken || !fromNumber) {
-                                console.error("[Campaign Activate] Missing Twilio environment variables");
-                                continue;
-                            }
-
-                            const client = twilio(accountSid, authToken);
-                            const twimlUrl = `${appUrl}/api/twilio/outbound?agentId=${campaign.agentId}&leadId=${lead.id}`;
-                            console.log(`[Voice Dispatch] Dialing TwiML URL: ${twimlUrl}`);
-
-                            const call = await client.calls.create({
-                                url: twimlUrl,
-                                to: lead.phone,
-                                from: fromNumber,
-                                record: false
-                            });
-                            console.log(`[Voice Dispatch] Twilio Call successfully queued with SID: ${call.sid}`);
-                            queuedCalls++;
+                        // EXOTEL ROUTING
+                        const webhookUrl = `${appUrl}/api/exotel/webhook`;
+                        const fromNumber = process.env.EXOTEL_VIRTUAL_NUMBER || "";
+                        
+                        if (!fromNumber || !process.env.EXOTEL_API_KEY) {
+                            console.error("[Campaign Activate] Exotel credentials missing in .env.");
+                            continue;
                         }
+
+                        // Pass agentId and leadId via custom field so the webhook knows who it is
+                        const customField = JSON.stringify({ agentId: campaign.agentId, leadId: lead.id, campaignId: campaign.id });
+                        
+                        const exotelCall = await makeOutboundCall({
+                            to: lead.phone,
+                            callerId: fromNumber,
+                            webhookUrl: webhookUrl,
+                            customField: customField
+                        });
+                        console.log(`[Voice Dispatch] Exotel Call successfully queued with SID: ${exotelCall.callSid}`);
+                        queuedCalls++;
                     } catch (e) {
                         console.error(`[Campaign Activate] Failed to dial voice lead ${lead.phone}:`, e);
                     }
