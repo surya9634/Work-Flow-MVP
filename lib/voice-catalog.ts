@@ -15,15 +15,15 @@ export type VoiceOption = {
 
 export const VOICE_CATALOG: VoiceOption[] = [
     // ─── Hindi ────────────────────────────────────────────────────────────────
-    { id: "anushka-hi",  name: "Anushka",  shortName: "Anushka - Hindi",  gender: "female", category: "Hindi", description: "Clear & professional (Hindi)" },
-    { id: "abhilash-hi", name: "Abhilash", shortName: "Abhilash - Hindi", gender: "male",   category: "Hindi", description: "Confident & formal (Hindi)" },
+    // { id: "anushka-hi",  name: "Anushka",  shortName: "Anushka - Hindi",  gender: "female", category: "Hindi", description: "Clear & professional (Hindi)" },
+    // { id: "abhilash-hi", name: "Abhilash", shortName: "Abhilash - Hindi", gender: "male",   category: "Hindi", description: "Confident & formal (Hindi)" },
     { id: "priya-hi",    name: "Priya",    shortName: "Priya - Hindi",    gender: "female", category: "Hindi", description: "Warm & friendly (Hindi)" },
     { id: "rahul-hi",    name: "Rahul",    shortName: "Rahul - Hindi",    gender: "male",   category: "Hindi", description: "Approachable (Hindi)" },
     { id: "neha-hi",     name: "Neha",     shortName: "Neha - Hindi",     gender: "female", category: "Hindi", description: "Expressive (Hindi)" },
     { id: "rohan-hi",    name: "Rohan",    shortName: "Rohan - Hindi",    gender: "male",   category: "Hindi", description: "Energetic (Hindi)" },
 
     // ─── Bengali ──────────────────────────────────────────────────────────────
-    { id: "manisha-bn",  name: "Manisha",  shortName: "Manisha - Bengali", gender: "female", category: "Bengali", description: "Professional (Bengali)" },
+    // { id: "manisha-bn",  name: "Manisha",  shortName: "Manisha - Bengali", gender: "female", category: "Bengali", description: "Professional (Bengali)" },
     { id: "amit-bn",     name: "Amit",     shortName: "Amit - Bengali",    gender: "male",   category: "Bengali", description: "Clear (Bengali)" },
     { id: "shreya-bn",   name: "Shreya",   shortName: "Shreya - Bengali",  gender: "female", category: "Bengali", description: "Warm (Bengali)" },
     { id: "dev-bn",      name: "Dev",      shortName: "Dev - Bengali",     gender: "male",   category: "Bengali", description: "Confident (Bengali)" },
@@ -72,8 +72,8 @@ export const VOICE_CATALOG: VoiceOption[] = [
     { id: "gokul-te",    name: "Gokul",    shortName: "Gokul - Telugu",    gender: "male",   category: "Telugu", description: "Confident (Telugu)" },
 
     // ─── English (Indian English) ─────────────────────────────────────────────
-    { id: "anushka-en",  name: "Anushka",  shortName: "Anushka - English", gender: "female", category: "English", description: "Indian English, Female" },
-    { id: "abhilash-en", name: "Abhilash", shortName: "Abhilash - English",gender: "male",   category: "English", description: "Indian English, Male" },
+    // { id: "anushka-en",  name: "Anushka",  shortName: "Anushka - English", gender: "female", category: "English", description: "Indian English, Female" },
+    // { id: "abhilash-en", name: "Abhilash", shortName: "Abhilash - English",gender: "male",   category: "English", description: "Indian English, Male" },
     { id: "priya-en",    name: "Priya",    shortName: "Priya - English",   gender: "female", category: "English", description: "Indian English, Warm" },
     { id: "rahul-en",    name: "Rahul",    shortName: "Rahul - English",   gender: "male",   category: "English", description: "Indian English, Clear" },
 ]
@@ -94,4 +94,4 @@ export const VOICE_CATEGORIES = [
 
 export type VoiceCategory = typeof VOICE_CATEGORIES[number]
 
-export const DEFAULT_VOICE_ID = "anushka-hi"
+export const DEFAULT_VOICE_ID = "priya-hi"

@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
         try {
             const voiceProfile = agent.voiceProfile ? JSON.parse(agent.voiceProfile) : {};
-            const voiceId = voiceProfile.voiceId || "anushka-hi";
+            const voiceId = voiceProfile.voiceId || "priya-hi";
             const voice = getVoiceById(voiceId);
             const targetLang = voice.language;
             const textToSpeak = targetLang === "en-IN"

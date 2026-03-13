@@ -12,7 +12,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Text is required" }, { status: 400 })
         }
 
-        let selectedVoiceId = requestVoiceId || "anushka-hi"
+        let selectedVoiceId = requestVoiceId || "priya-hi"
 
         // If agentId provided, use the agent's saved voice
         if (agentId) {

@@ -195,7 +195,7 @@ export { POST as GET };
 /**
  * Generate TTS + save to temp file. Returns base64 audio.
  */
-async function safeTTS(text: string, callLogId: string, suffix: string, voiceId = "anushka-hi"): Promise<string> {
+async function safeTTS(text: string, callLogId: string, suffix: string, voiceId = "priya-hi"): Promise<string> {
     try {
         const voice = getVoiceById(voiceId);
         const targetLang = voice.language;

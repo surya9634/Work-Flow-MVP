@@ -14,7 +14,7 @@ import os from "os";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
-const DEFAULT_SARVAM_VOICE_ID = "anushka-hi";
+const DEFAULT_SARVAM_VOICE_ID = "priya-hi";
 
 /**
  * VOICE RUNTIME ENGINE
@@ -52,10 +52,10 @@ const VOICE_MAP: Record<string, Record<string, string>> = {
         assertive:    "abhilash-hi",
     },
     female: {
-        professional: "anushka-hi",
+        professional: "priya-hi",
         friendly:     "priya-hi",
         casual:       "neha-hi",
-        assertive:    "anushka-hi",
+        assertive:    "priya-hi",
     },
 };
 

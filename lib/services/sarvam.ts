@@ -33,15 +33,15 @@ export interface SarvamVoice {
 
 export const SARVAM_VOICES: SarvamVoice[] = [
     // ── Hindi (hi-IN) ──────────────────────────────────
-    { id: "anushka-hi",  speaker: "anushka",  language: "hi-IN", languageLabel: "Hindi", name: "Anushka (Hindi)", gender: "Female" },
-    { id: "abhilash-hi", speaker: "abhilash", language: "hi-IN", languageLabel: "Hindi", name: "Abhilash (Hindi)", gender: "Male" },
+    // { id: "anushka-hi",  speaker: "anushka",  language: "hi-IN", languageLabel: "Hindi", name: "Anushka (Hindi)", gender: "Female" },
+    // { id: "abhilash-hi", speaker: "abhilash", language: "hi-IN", languageLabel: "Hindi", name: "Abhilash (Hindi)", gender: "Male" },
     { id: "priya-hi",    speaker: "priya",    language: "hi-IN", languageLabel: "Hindi", name: "Priya (Hindi)", gender: "Female" },
     { id: "rahul-hi",    speaker: "rahul",    language: "hi-IN", languageLabel: "Hindi", name: "Rahul (Hindi)", gender: "Male" },
     { id: "neha-hi",     speaker: "neha",     language: "hi-IN", languageLabel: "Hindi", name: "Neha (Hindi)", gender: "Female" },
     { id: "rohan-hi",    speaker: "rohan",    language: "hi-IN", languageLabel: "Hindi", name: "Rohan (Hindi)", gender: "Male" },
 
     // ── Bengali (bn-IN) ────────────────────────────────
-    { id: "manisha-bn",  speaker: "manisha",  language: "bn-IN", languageLabel: "Bengali", name: "Manisha (Bengali)", gender: "Female" },
+    // { id: "manisha-bn",  speaker: "manisha",  language: "bn-IN", languageLabel: "Bengali", name: "Manisha (Bengali)", gender: "Female" },
     { id: "amit-bn",     speaker: "amit",     language: "bn-IN", languageLabel: "Bengali", name: "Amit (Bengali)", gender: "Male" },
     { id: "shreya-bn",   speaker: "shreya",   language: "bn-IN", languageLabel: "Bengali", name: "Shreya (Bengali)", gender: "Female" },
     { id: "dev-bn",      speaker: "dev",      language: "bn-IN", languageLabel: "Bengali", name: "Dev (Bengali)", gender: "Male" },
@@ -90,8 +90,8 @@ export const SARVAM_VOICES: SarvamVoice[] = [
     { id: "gokul-te",    speaker: "gokul",    language: "te-IN", languageLabel: "Telugu", name: "Gokul (Telugu)", gender: "Male" },
 
     // ── English / Indian English (en-IN) ───────────────
-    { id: "anushka-en",  speaker: "anushka",  language: "en-IN", languageLabel: "English", name: "Anushka (English)", gender: "Female" },
-    { id: "abhilash-en", speaker: "abhilash", language: "en-IN", languageLabel: "English", name: "Abhilash (English)", gender: "Male" },
+    // { id: "anushka-en",  speaker: "anushka",  language: "en-IN", languageLabel: "English", name: "Anushka (English)", gender: "Female" },
+    // { id: "abhilash-en", speaker: "abhilash", language: "en-IN", languageLabel: "English", name: "Abhilash (English)", gender: "Male" },
     { id: "priya-en",    speaker: "priya",    language: "en-IN", languageLabel: "English", name: "Priya (English)", gender: "Female" },
     { id: "rahul-en",    speaker: "rahul",    language: "en-IN", languageLabel: "English", name: "Rahul (English)", gender: "Male" },
 ];
@@ -122,15 +122,17 @@ const LEGACY_SPEAKER_LANG: Record<string, string> = {
     "manisha": "bn-IN", "vidya": "gu-IN", "arya": "kn-IN"
 };
 
-// Map old v1 voice IDs (like 'meera-hi') to the new v3 voice IDs (like 'anushka-hi')
+// Map old v1 voice IDs (like 'meera-hi') to the new v3 voice IDs (like 'priya-hi')
 const LEGACY_VOICE_MAP: Record<string, string> = {
     // Hindi
-    "meera-hi": "anushka-hi",
-    "pavithra-hi": "priya-hi",
-    "maitreyi-hi": "neha-hi",
-    "arvind-hi": "abhilash-hi",
-    "amol-hi": "rahul-hi",
-    "amartya-hi": "rohan-hi",
+    "meera-hi": "priya-hi",
+    "anushka-hi": "priya-hi",
+    "pavithra-hi": "neha-hi",
+    "maitreyi-hi": "shreya-hi", // mapping to an available female voice
+    "arvind-hi": "rahul-hi",
+    "abhilash-hi": "rahul-hi",
+    "amol-hi": "rohan-hi",
+    "amartya-hi": "dev-hi", // dev-bn equivalent or just pick another male hindi voice
     
     // Default fallback if a specific translation isn't listed
     // (You can add more specific mappings here if needed)
@@ -208,7 +210,7 @@ export async function translateTextToHindi(text: string): Promise<string> {
  */
 export async function generateSpeechWithSarvam(
     text: string,
-    voiceId: string = "anushka-hi"
+    voiceId: string = "priya-hi"
 ): Promise<Buffer> {
     // Map legacy ids directly to the new ids seamlessly
     const robustVoiceId = LEGACY_VOICE_MAP[voiceId] || voiceId;
