@@ -33,70 +33,67 @@ export interface SarvamVoice {
 
 export const SARVAM_VOICES: SarvamVoice[] = [
     // ── Hindi (hi-IN) ──────────────────────────────────
-    { id: "meera-hi",    speaker: "meera",    language: "hi-IN", languageLabel: "Hindi",    name: "Meera (Hindi)",    gender: "Female" },
-    { id: "pavithra-hi", speaker: "pavithra", language: "hi-IN", languageLabel: "Hindi",    name: "Pavithra (Hindi)", gender: "Female" },
-    { id: "maitreyi-hi", speaker: "maitreyi", language: "hi-IN", languageLabel: "Hindi",    name: "Maitreyi (Hindi)", gender: "Female" },
-    { id: "arvind-hi",   speaker: "arvind",   language: "hi-IN", languageLabel: "Hindi",    name: "Arvind (Hindi)",   gender: "Male"   },
-    { id: "amol-hi",     speaker: "amol",     language: "hi-IN", languageLabel: "Hindi",    name: "Amol (Hindi)",     gender: "Male"   },
-    { id: "amartya-hi",  speaker: "amartya",  language: "hi-IN", languageLabel: "Hindi",    name: "Amartya (Hindi)",  gender: "Male"   },
+    { id: "anushka-hi",  speaker: "anushka",  language: "hi-IN", languageLabel: "Hindi", name: "Anushka (Hindi)", gender: "Female" },
+    { id: "abhilash-hi", speaker: "abhilash", language: "hi-IN", languageLabel: "Hindi", name: "Abhilash (Hindi)", gender: "Male" },
+    { id: "priya-hi",    speaker: "priya",    language: "hi-IN", languageLabel: "Hindi", name: "Priya (Hindi)", gender: "Female" },
+    { id: "rahul-hi",    speaker: "rahul",    language: "hi-IN", languageLabel: "Hindi", name: "Rahul (Hindi)", gender: "Male" },
+    { id: "neha-hi",     speaker: "neha",     language: "hi-IN", languageLabel: "Hindi", name: "Neha (Hindi)", gender: "Female" },
+    { id: "rohan-hi",    speaker: "rohan",    language: "hi-IN", languageLabel: "Hindi", name: "Rohan (Hindi)", gender: "Male" },
 
     // ── Bengali (bn-IN) ────────────────────────────────
-    { id: "meera-bn",    speaker: "meera",    language: "bn-IN", languageLabel: "Bengali",  name: "Meera (Bengali)",    gender: "Female" },
-    { id: "pavithra-bn", speaker: "pavithra", language: "bn-IN", languageLabel: "Bengali",  name: "Pavithra (Bengali)", gender: "Female" },
-    { id: "amartya-bn",  speaker: "amartya",  language: "bn-IN", languageLabel: "Bengali",  name: "Amartya (Bengali)",  gender: "Male"   },
-    { id: "arvind-bn",   speaker: "arvind",   language: "bn-IN", languageLabel: "Bengali",  name: "Arvind (Bengali)",   gender: "Male"   },
+    { id: "manisha-bn",  speaker: "manisha",  language: "bn-IN", languageLabel: "Bengali", name: "Manisha (Bengali)", gender: "Female" },
+    { id: "amit-bn",     speaker: "amit",     language: "bn-IN", languageLabel: "Bengali", name: "Amit (Bengali)", gender: "Male" },
+    { id: "shreya-bn",   speaker: "shreya",   language: "bn-IN", languageLabel: "Bengali", name: "Shreya (Bengali)", gender: "Female" },
+    { id: "dev-bn",      speaker: "dev",      language: "bn-IN", languageLabel: "Bengali", name: "Dev (Bengali)", gender: "Male" },
 
     // ── Gujarati (gu-IN) ───────────────────────────────
-    { id: "meera-gu",    speaker: "meera",    language: "gu-IN", languageLabel: "Gujarati", name: "Meera (Gujarati)",    gender: "Female" },
-    { id: "maitreyi-gu", speaker: "maitreyi", language: "gu-IN", languageLabel: "Gujarati", name: "Maitreyi (Gujarati)", gender: "Female" },
-    { id: "amol-gu",     speaker: "amol",     language: "gu-IN", languageLabel: "Gujarati", name: "Amol (Gujarati)",     gender: "Male"   },
+    { id: "vidya-gu",    speaker: "vidya",    language: "gu-IN", languageLabel: "Gujarati", name: "Vidya (Gujarati)", gender: "Female" },
+    { id: "varun-gu",    speaker: "varun",    language: "gu-IN", languageLabel: "Gujarati", name: "Varun (Gujarati)", gender: "Male" },
+    { id: "pooja-gu",    speaker: "pooja",    language: "gu-IN", languageLabel: "Gujarati", name: "Pooja (Gujarati)", gender: "Female" },
 
     // ── Kannada (kn-IN) ────────────────────────────────
-    { id: "pavithra-kn", speaker: "pavithra", language: "kn-IN", languageLabel: "Kannada",  name: "Pavithra (Kannada)", gender: "Female" },
-    { id: "maitreyi-kn", speaker: "maitreyi", language: "kn-IN", languageLabel: "Kannada",  name: "Maitreyi (Kannada)", gender: "Female" },
-    { id: "arvind-kn",   speaker: "arvind",   language: "kn-IN", languageLabel: "Kannada",  name: "Arvind (Kannada)",   gender: "Male"   },
-    { id: "amol-kn",     speaker: "amol",     language: "kn-IN", languageLabel: "Kannada",  name: "Amol (Kannada)",     gender: "Male"   },
+    { id: "arya-kn",     speaker: "arya",     language: "kn-IN", languageLabel: "Kannada", name: "Arya (Kannada)", gender: "Female" },
+    { id: "manan-kn",    speaker: "manan",    language: "kn-IN", languageLabel: "Kannada", name: "Manan (Kannada)", gender: "Male" },
+    { id: "simran-kn",   speaker: "simran",   language: "kn-IN", languageLabel: "Kannada", name: "Simran (Kannada)", gender: "Female" },
+    { id: "sumit-kn",    speaker: "sumit",    language: "kn-IN", languageLabel: "Kannada", name: "Sumit (Kannada)", gender: "Male" },
 
     // ── Malayalam (ml-IN) ──────────────────────────────
-    { id: "meera-ml",    speaker: "meera",    language: "ml-IN", languageLabel: "Malayalam", name: "Meera (Malayalam)",    gender: "Female" },
-    { id: "pavithra-ml", speaker: "pavithra", language: "ml-IN", languageLabel: "Malayalam", name: "Pavithra (Malayalam)", gender: "Female" },
-    { id: "amartya-ml",  speaker: "amartya",  language: "ml-IN", languageLabel: "Malayalam", name: "Amartya (Malayalam)",  gender: "Male"   },
+    { id: "kavya-ml",    speaker: "kavya",    language: "ml-IN", languageLabel: "Malayalam", name: "Kavya (Malayalam)", gender: "Female" },
+    { id: "hitesh-ml",   speaker: "hitesh",   language: "ml-IN", languageLabel: "Malayalam", name: "Hitesh (Malayalam)", gender: "Male" },
+    { id: "roopa-ml",    speaker: "roopa",    language: "ml-IN", languageLabel: "Malayalam", name: "Roopa (Malayalam)", gender: "Female" },
 
     // ── Marathi (mr-IN) ────────────────────────────────
-    { id: "maitreyi-mr", speaker: "maitreyi", language: "mr-IN", languageLabel: "Marathi",  name: "Maitreyi (Marathi)", gender: "Female" },
-    { id: "meera-mr",    speaker: "meera",    language: "mr-IN", languageLabel: "Marathi",  name: "Meera (Marathi)",    gender: "Female" },
-    { id: "amol-mr",     speaker: "amol",     language: "mr-IN", languageLabel: "Marathi",  name: "Amol (Marathi)",     gender: "Male"   },
-    { id: "arvind-mr",   speaker: "arvind",   language: "mr-IN", languageLabel: "Marathi",  name: "Arvind (Marathi)",   gender: "Male"   },
+    { id: "ishita-mr",   speaker: "ishita",   language: "mr-IN", languageLabel: "Marathi", name: "Ishita (Marathi)", gender: "Female" },
+    { id: "kabir-mr",    speaker: "kabir",    language: "mr-IN", languageLabel: "Marathi", name: "Kabir (Marathi)", gender: "Male" },
+    { id: "ritu-mr",     speaker: "ritu",     language: "mr-IN", languageLabel: "Marathi", name: "Ritu (Marathi)", gender: "Female" },
+    { id: "aayan-mr",    speaker: "aayan",    language: "mr-IN", languageLabel: "Marathi", name: "Aayan (Marathi)", gender: "Male" },
 
     // ── Odia (od-IN) ───────────────────────────────────
-    { id: "meera-od",    speaker: "meera",    language: "od-IN", languageLabel: "Odia",     name: "Meera (Odia)",    gender: "Female" },
-    { id: "amartya-od",  speaker: "amartya",  language: "od-IN", languageLabel: "Odia",     name: "Amartya (Odia)",  gender: "Male"   },
+    { id: "amelia-od",   speaker: "amelia",   language: "od-IN", languageLabel: "Odia", name: "Amelia (Odia)", gender: "Female" },
+    { id: "aditya-od",   speaker: "aditya",   language: "od-IN", languageLabel: "Odia", name: "Aditya (Odia)", gender: "Male" },
 
     // ── Punjabi (pa-IN) ────────────────────────────────
-    { id: "meera-pa",    speaker: "meera",    language: "pa-IN", languageLabel: "Punjabi",  name: "Meera (Punjabi)",    gender: "Female" },
-    { id: "pavithra-pa", speaker: "pavithra", language: "pa-IN", languageLabel: "Punjabi",  name: "Pavithra (Punjabi)", gender: "Female" },
-    { id: "amol-pa",     speaker: "amol",     language: "pa-IN", languageLabel: "Punjabi",  name: "Amol (Punjabi)",     gender: "Male"   },
+    { id: "sophia-pa",   speaker: "sophia",   language: "pa-IN", languageLabel: "Punjabi", name: "Sophia (Punjabi)", gender: "Female" },
+    { id: "anand-pa",    speaker: "anand",    language: "pa-IN", languageLabel: "Punjabi", name: "Anand (Punjabi)", gender: "Male" },
+    { id: "tanya-pa",    speaker: "tanya",    language: "pa-IN", languageLabel: "Punjabi", name: "Tanya (Punjabi)", gender: "Female" },
 
     // ── Tamil (ta-IN) ──────────────────────────────────
-    { id: "meera-ta",    speaker: "meera",    language: "ta-IN", languageLabel: "Tamil",    name: "Meera (Tamil)",    gender: "Female" },
-    { id: "maitreyi-ta", speaker: "maitreyi", language: "ta-IN", languageLabel: "Tamil",    name: "Maitreyi (Tamil)", gender: "Female" },
-    { id: "arvind-ta",   speaker: "arvind",   language: "ta-IN", languageLabel: "Tamil",    name: "Arvind (Tamil)",   gender: "Male"   },
-    { id: "amol-ta",     speaker: "amol",     language: "ta-IN", languageLabel: "Tamil",    name: "Amol (Tamil)",     gender: "Male"   },
+    { id: "shruti-ta",   speaker: "shruti",   language: "ta-IN", languageLabel: "Tamil", name: "Shruti (Tamil)", gender: "Female" },
+    { id: "tarun-ta",    speaker: "tarun",    language: "ta-IN", languageLabel: "Tamil", name: "Tarun (Tamil)", gender: "Male" },
+    { id: "suhani-ta",   speaker: "suhani",   language: "ta-IN", languageLabel: "Tamil", name: "Suhani (Tamil)", gender: "Female" },
+    { id: "sunny-ta",    speaker: "sunny",    language: "ta-IN", languageLabel: "Tamil", name: "Sunny (Tamil)", gender: "Male" },
 
     // ── Telugu (te-IN) ─────────────────────────────────
-    { id: "meera-te",    speaker: "meera",    language: "te-IN", languageLabel: "Telugu",   name: "Meera (Telugu)",    gender: "Female" },
-    { id: "pavithra-te", speaker: "pavithra", language: "te-IN", languageLabel: "Telugu",   name: "Pavithra (Telugu)", gender: "Female" },
-    { id: "arvind-te",   speaker: "arvind",   language: "te-IN", languageLabel: "Telugu",   name: "Arvind (Telugu)",   gender: "Male"   },
-    { id: "amartya-te",  speaker: "amartya",  language: "te-IN", languageLabel: "Telugu",   name: "Amartya (Telugu)",  gender: "Male"   },
+    { id: "kavitha-te",  speaker: "kavitha",  language: "te-IN", languageLabel: "Telugu", name: "Kavitha (Telugu)", gender: "Female" },
+    { id: "mani-te",     speaker: "mani",     language: "te-IN", languageLabel: "Telugu", name: "Mani (Telugu)", gender: "Male" },
+    { id: "rupali-te",   speaker: "rupali",   language: "te-IN", languageLabel: "Telugu", name: "Rupali (Telugu)", gender: "Female" },
+    { id: "gokul-te",    speaker: "gokul",    language: "te-IN", languageLabel: "Telugu", name: "Gokul (Telugu)", gender: "Male" },
 
     // ── English / Indian English (en-IN) ───────────────
-    // Sarvam supports Indian-accented English through bulbul:v1
-    { id: "meera-en",    speaker: "meera",    language: "en-IN", languageLabel: "English",  name: "Meera (English)",    gender: "Female" },
-    { id: "pavithra-en", speaker: "pavithra", language: "en-IN", languageLabel: "English",  name: "Pavithra (English)", gender: "Female" },
-    { id: "maitreyi-en", speaker: "maitreyi", language: "en-IN", languageLabel: "English",  name: "Maitreyi (English)", gender: "Female" },
-    { id: "arvind-en",   speaker: "arvind",   language: "en-IN", languageLabel: "English",  name: "Arvind (English)",   gender: "Male"   },
-    { id: "amol-en",     speaker: "amol",     language: "en-IN", languageLabel: "English",  name: "Amol (English)",     gender: "Male"   },
-    { id: "amartya-en",  speaker: "amartya",  language: "en-IN", languageLabel: "English",  name: "Amartya (English)",  gender: "Male"   },
+    { id: "anushka-en",  speaker: "anushka",  language: "en-IN", languageLabel: "English", name: "Anushka (English)", gender: "Female" },
+    { id: "abhilash-en", speaker: "abhilash", language: "en-IN", languageLabel: "English", name: "Abhilash (English)", gender: "Male" },
+    { id: "priya-en",    speaker: "priya",    language: "en-IN", languageLabel: "English", name: "Priya (English)", gender: "Female" },
+    { id: "rahul-en",    speaker: "rahul",    language: "en-IN", languageLabel: "English", name: "Rahul (English)", gender: "Male" },
 ];
 
 /**
@@ -121,9 +118,8 @@ export function getSarvamVoices() {
 
 // ─── LEGACY speaker → language resolution (for old string-based voiceId) ──
 const LEGACY_SPEAKER_LANG: Record<string, string> = {
-    "meera": "hi-IN", "pavithra": "hi-IN", "maitreyi": "hi-IN",
-    "arvind": "hi-IN", "amol": "hi-IN", "amartya": "hi-IN",
-    "ravi": "hi-IN", "anjali": "hi-IN", "rahul": "hi-IN",
+    "meera": "hi-IN", "anushka": "hi-IN", "abhilash": "hi-IN",
+    "manisha": "bn-IN", "vidya": "gu-IN", "arya": "kn-IN"
 };
 
 // ─── API FUNCTIONS ────────────────────────────────────────────────
@@ -225,7 +221,7 @@ export async function generateSpeechWithSarvam(
             loudness: 1.5,
             speech_sample_rate: 16000,
             enable_preprocessing: true,
-            model: "bulbul:v1",
+            model: "bulbul:v3",
         }),
     });
 

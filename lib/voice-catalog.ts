@@ -15,69 +15,67 @@ export type VoiceOption = {
 
 export const VOICE_CATALOG: VoiceOption[] = [
     // ─── Hindi ────────────────────────────────────────────────────────────────
-    { id: "meera-hi",    name: "Meera",    shortName: "Meera - Hindi",     gender: "female", category: "Hindi",     description: "Warm & natural" },
-    { id: "pavithra-hi", name: "Pavithra", shortName: "Pavithra - Hindi",  gender: "female", category: "Hindi",     description: "Clear & professional" },
-    { id: "maitreyi-hi", name: "Maitreyi", shortName: "Maitreyi - Hindi", gender: "female", category: "Hindi",     description: "Friendly & expressive" },
-    { id: "arvind-hi",   name: "Arvind",   shortName: "Arvind - Hindi",    gender: "male",   category: "Hindi",     description: "Professional & calm" },
-    { id: "amol-hi",     name: "Amol",     shortName: "Amol - Hindi",      gender: "male",   category: "Hindi",     description: "Friendly & approachable" },
-    { id: "amartya-hi",  name: "Amartya",  shortName: "Amartya - Hindi",   gender: "male",   category: "Hindi",     description: "Deep & authoritative" },
-
-    // ─── Tamil ────────────────────────────────────────────────────────────────
-    { id: "meera-ta",    name: "Meera",    shortName: "Meera - Tamil",     gender: "female", category: "Tamil",     description: "Warm & natural" },
-    { id: "maitreyi-ta", name: "Maitreyi", shortName: "Maitreyi - Tamil", gender: "female", category: "Tamil",     description: "Friendly & expressive" },
-    { id: "arvind-ta",   name: "Arvind",   shortName: "Arvind - Tamil",    gender: "male",   category: "Tamil",     description: "Clear & confident" },
-    { id: "amol-ta",     name: "Amol",     shortName: "Amol - Tamil",      gender: "male",   category: "Tamil",     description: "Warm & friendly" },
-
-    // ─── Telugu ───────────────────────────────────────────────────────────────
-    { id: "meera-te",    name: "Meera",    shortName: "Meera - Telugu",    gender: "female", category: "Telugu",    description: "Warm & natural" },
-    { id: "pavithra-te", name: "Pavithra", shortName: "Pavithra - Telugu", gender: "female", category: "Telugu",    description: "Professional" },
-    { id: "arvind-te",   name: "Arvind",   shortName: "Arvind - Telugu",   gender: "male",   category: "Telugu",    description: "Clear & confident" },
-    { id: "amartya-te",  name: "Amartya",  shortName: "Amartya - Telugu",  gender: "male",   category: "Telugu",    description: "Deep & rich" },
-
-    // ─── Kannada ──────────────────────────────────────────────────────────────
-    { id: "pavithra-kn", name: "Pavithra", shortName: "Pavithra - Kannada", gender: "female", category: "Kannada",  description: "Professional" },
-    { id: "maitreyi-kn", name: "Maitreyi", shortName: "Maitreyi - Kannada", gender: "female", category: "Kannada",  description: "Expressive & warm" },
-    { id: "arvind-kn",   name: "Arvind",   shortName: "Arvind - Kannada",   gender: "male",   category: "Kannada",  description: "Confident" },
-    { id: "amol-kn",     name: "Amol",     shortName: "Amol - Kannada",     gender: "male",   category: "Kannada",  description: "Friendly" },
-
-    // ─── Malayalam ────────────────────────────────────────────────────────────
-    { id: "meera-ml",    name: "Meera",    shortName: "Meera - Malayalam",    gender: "female", category: "Malayalam", description: "Natural & warm" },
-    { id: "pavithra-ml", name: "Pavithra", shortName: "Pavithra - Malayalam", gender: "female", category: "Malayalam", description: "Professional" },
-    { id: "amartya-ml",  name: "Amartya",  shortName: "Amartya - Malayalam",  gender: "male",   category: "Malayalam", description: "Deep & clear" },
+    { id: "anushka-hi",  name: "Anushka",  shortName: "Anushka - Hindi",  gender: "female", category: "Hindi", description: "Clear & professional (Hindi)" },
+    { id: "abhilash-hi", name: "Abhilash", shortName: "Abhilash - Hindi", gender: "male",   category: "Hindi", description: "Confident & formal (Hindi)" },
+    { id: "priya-hi",    name: "Priya",    shortName: "Priya - Hindi",    gender: "female", category: "Hindi", description: "Warm & friendly (Hindi)" },
+    { id: "rahul-hi",    name: "Rahul",    shortName: "Rahul - Hindi",    gender: "male",   category: "Hindi", description: "Approachable (Hindi)" },
+    { id: "neha-hi",     name: "Neha",     shortName: "Neha - Hindi",     gender: "female", category: "Hindi", description: "Expressive (Hindi)" },
+    { id: "rohan-hi",    name: "Rohan",    shortName: "Rohan - Hindi",    gender: "male",   category: "Hindi", description: "Energetic (Hindi)" },
 
     // ─── Bengali ──────────────────────────────────────────────────────────────
-    { id: "meera-bn",    name: "Meera",    shortName: "Meera - Bengali",    gender: "female", category: "Bengali",   description: "Warm & natural" },
-    { id: "pavithra-bn", name: "Pavithra", shortName: "Pavithra - Bengali", gender: "female", category: "Bengali",   description: "Professional" },
-    { id: "arvind-bn",   name: "Arvind",   shortName: "Arvind - Bengali",   gender: "male",   category: "Bengali",   description: "Confident" },
-    { id: "amartya-bn",  name: "Amartya",  shortName: "Amartya - Bengali",  gender: "male",   category: "Bengali",   description: "Deep & authoritative" },
-
-    // ─── Marathi ──────────────────────────────────────────────────────────────
-    { id: "maitreyi-mr", name: "Maitreyi", shortName: "Maitreyi - Marathi", gender: "female", category: "Marathi",   description: "Friendly" },
-    { id: "meera-mr",    name: "Meera",    shortName: "Meera - Marathi",    gender: "female", category: "Marathi",   description: "Warm & clear" },
-    { id: "amol-mr",     name: "Amol",     shortName: "Amol - Marathi",     gender: "male",   category: "Marathi",   description: "Friendly" },
-    { id: "arvind-mr",   name: "Arvind",   shortName: "Arvind - Marathi",   gender: "male",   category: "Marathi",   description: "Professional" },
+    { id: "manisha-bn",  name: "Manisha",  shortName: "Manisha - Bengali", gender: "female", category: "Bengali", description: "Professional (Bengali)" },
+    { id: "amit-bn",     name: "Amit",     shortName: "Amit - Bengali",    gender: "male",   category: "Bengali", description: "Clear (Bengali)" },
+    { id: "shreya-bn",   name: "Shreya",   shortName: "Shreya - Bengali",  gender: "female", category: "Bengali", description: "Warm (Bengali)" },
+    { id: "dev-bn",      name: "Dev",      shortName: "Dev - Bengali",     gender: "male",   category: "Bengali", description: "Confident (Bengali)" },
 
     // ─── Gujarati ─────────────────────────────────────────────────────────────
-    { id: "meera-gu",    name: "Meera",    shortName: "Meera - Gujarati",    gender: "female", category: "Gujarati",  description: "Warm & natural" },
-    { id: "maitreyi-gu", name: "Maitreyi", shortName: "Maitreyi - Gujarati", gender: "female", category: "Gujarati",  description: "Expressive" },
-    { id: "amol-gu",     name: "Amol",     shortName: "Amol - Gujarati",     gender: "male",   category: "Gujarati",  description: "Friendly" },
+    { id: "vidya-gu",    name: "Vidya",    shortName: "Vidya - Gujarati",  gender: "female", category: "Gujarati", description: "Professional (Gujarati)" },
+    { id: "varun-gu",    name: "Varun",    shortName: "Varun - Gujarati",  gender: "male",   category: "Gujarati", description: "Clear (Gujarati)" },
+    { id: "pooja-gu",    name: "Pooja",    shortName: "Pooja - Gujarati",  gender: "female", category: "Gujarati", description: "Warm (Gujarati)" },
 
-    // ─── Punjabi ──────────────────────────────────────────────────────────────
-    { id: "meera-pa",    name: "Meera",    shortName: "Meera - Punjabi",    gender: "female", category: "Punjabi",   description: "Warm & energetic" },
-    { id: "pavithra-pa", name: "Pavithra", shortName: "Pavithra - Punjabi", gender: "female", category: "Punjabi",   description: "Professional" },
-    { id: "amol-pa",     name: "Amol",     shortName: "Amol - Punjabi",     gender: "male",   category: "Punjabi",   description: "Bold & friendly" },
+    // ─── Kannada ──────────────────────────────────────────────────────────────
+    { id: "arya-kn",     name: "Arya",     shortName: "Arya - Kannada",    gender: "female", category: "Kannada", description: "Professional (Kannada)" },
+    { id: "manan-kn",    name: "Manan",    shortName: "Manan - Kannada",   gender: "male",   category: "Kannada", description: "Clear (Kannada)" },
+    { id: "simran-kn",   name: "Simran",   shortName: "Simran - Kannada",  gender: "female", category: "Kannada", description: "Warm (Kannada)" },
+    { id: "sumit-kn",    name: "Sumit",    shortName: "Sumit - Kannada",   gender: "male",   category: "Kannada", description: "Confident (Kannada)" },
+
+    // ─── Malayalam ────────────────────────────────────────────────────────────
+    { id: "kavya-ml",    name: "Kavya",    shortName: "Kavya - Malayalam", gender: "female", category: "Malayalam", description: "Professional (Malayalam)" },
+    { id: "hitesh-ml",   name: "Hitesh",   shortName: "Hitesh - Malayalam", gender: "male",  category: "Malayalam", description: "Clear (Malayalam)" },
+    { id: "roopa-ml",    name: "Roopa",    shortName: "Roopa - Malayalam",  gender: "female", category: "Malayalam", description: "Warm (Malayalam)" },
+
+    // ─── Marathi ──────────────────────────────────────────────────────────────
+    { id: "ishita-mr",   name: "Ishita",   shortName: "Ishita - Marathi",  gender: "female", category: "Marathi", description: "Professional (Marathi)" },
+    { id: "kabir-mr",    name: "Kabir",    shortName: "Kabir - Marathi",   gender: "male",   category: "Marathi", description: "Clear (Marathi)" },
+    { id: "ritu-mr",     name: "Ritu",     shortName: "Ritu - Marathi",    gender: "female", category: "Marathi", description: "Warm (Marathi)" },
+    { id: "aayan-mr",    name: "Aayan",    shortName: "Aayan - Marathi",   gender: "male",   category: "Marathi", description: "Confident (Marathi)" },
 
     // ─── Odia ─────────────────────────────────────────────────────────────────
-    { id: "meera-od",    name: "Meera",    shortName: "Meera - Odia",    gender: "female", category: "Odia",      description: "Warm & clear" },
-    { id: "amartya-od",  name: "Amartya",  shortName: "Amartya - Odia",  gender: "male",   category: "Odia",      description: "Deep & calm" },
+    { id: "amelia-od",   name: "Amelia",   shortName: "Amelia - Odia",     gender: "female", category: "Odia", description: "Professional (Odia)" },
+    { id: "aditya-od",   name: "Aditya",   shortName: "Aditya - Odia",     gender: "male",   category: "Odia", description: "Clear (Odia)" },
 
-    // ─── English (Indian English via Sarvam) ──────────────────────────────────
-    { id: "meera-en",    name: "Meera",    shortName: "Meera - English",    gender: "female", category: "English",   description: "Indian English, warm" },
-    { id: "pavithra-en", name: "Pavithra", shortName: "Pavithra - English", gender: "female", category: "English",   description: "Professional" },
-    { id: "maitreyi-en", name: "Maitreyi", shortName: "Maitreyi - English", gender: "female", category: "English",   description: "Friendly & expressive" },
-    { id: "arvind-en",   name: "Arvind",   shortName: "Arvind - English",   gender: "male",   category: "English",   description: "Confident Indian English" },
-    { id: "amol-en",     name: "Amol",     shortName: "Amol - English",     gender: "male",   category: "English",   description: "Approachable" },
-    { id: "amartya-en",  name: "Amartya",  shortName: "Amartya - English",  gender: "male",   category: "English",   description: "Deep & rich" },
+    // ─── Punjabi ──────────────────────────────────────────────────────────────
+    { id: "sophia-pa",   name: "Sophia",   shortName: "Sophia - Punjabi",  gender: "female", category: "Punjabi", description: "Professional (Punjabi)" },
+    { id: "anand-pa",    name: "Anand",    shortName: "Anand - Punjabi",   gender: "male",   category: "Punjabi", description: "Clear (Punjabi)" },
+    { id: "tanya-pa",    name: "Tanya",    shortName: "Tanya - Punjabi",   gender: "female", category: "Punjabi", description: "Warm (Punjabi)" },
+
+    // ─── Tamil ────────────────────────────────────────────────────────────────
+    { id: "shruti-ta",   name: "Shruti",   shortName: "Shruti - Tamil",    gender: "female", category: "Tamil", description: "Professional (Tamil)" },
+    { id: "tarun-ta",    name: "Tarun",    shortName: "Tarun - Tamil",     gender: "male",   category: "Tamil", description: "Clear (Tamil)" },
+    { id: "suhani-ta",   name: "Suhani",   shortName: "Suhani - Tamil",    gender: "female", category: "Tamil", description: "Warm (Tamil)" },
+    { id: "sunny-ta",    name: "Sunny",    shortName: "Sunny - Tamil",     gender: "male",   category: "Tamil", description: "Confident (Tamil)" },
+
+    // ─── Telugu ───────────────────────────────────────────────────────────────
+    { id: "kavitha-te",  name: "Kavitha",  shortName: "Kavitha - Telugu",  gender: "female", category: "Telugu", description: "Professional (Telugu)" },
+    { id: "mani-te",     name: "Mani",     shortName: "Mani - Telugu",     gender: "male",   category: "Telugu", description: "Clear (Telugu)" },
+    { id: "rupali-te",   name: "Rupali",   shortName: "Rupali - Telugu",   gender: "female", category: "Telugu", description: "Warm (Telugu)" },
+    { id: "gokul-te",    name: "Gokul",    shortName: "Gokul - Telugu",    gender: "male",   category: "Telugu", description: "Confident (Telugu)" },
+
+    // ─── English (Indian English) ─────────────────────────────────────────────
+    { id: "anushka-en",  name: "Anushka",  shortName: "Anushka - English", gender: "female", category: "English", description: "Indian English, Female" },
+    { id: "abhilash-en", name: "Abhilash", shortName: "Abhilash - English",gender: "male",   category: "English", description: "Indian English, Male" },
+    { id: "priya-en",    name: "Priya",    shortName: "Priya - English",   gender: "female", category: "English", description: "Indian English, Warm" },
+    { id: "rahul-en",    name: "Rahul",    shortName: "Rahul - English",   gender: "male",   category: "English", description: "Indian English, Clear" },
 ]
 
 export const VOICE_CATEGORIES = [
@@ -96,4 +94,4 @@ export const VOICE_CATEGORIES = [
 
 export type VoiceCategory = typeof VOICE_CATEGORIES[number]
 
-export const DEFAULT_VOICE_ID = "meera-hi"
+export const DEFAULT_VOICE_ID = "anushka-hi"
