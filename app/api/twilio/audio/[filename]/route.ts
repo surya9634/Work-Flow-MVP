@@ -19,7 +19,7 @@ export async function GET(
              return new NextResponse("Invalid filename", { status: 400 });
         }
 
-        const filePath = path.join(process.cwd(), "public", "temp-audio", filename);
+        const filePath = path.join("/tmp", filename);
         
         const fileBuffer = await fs.readFile(filePath);
 

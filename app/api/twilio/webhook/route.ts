@@ -12,8 +12,8 @@ const prisma = new PrismaClient();
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
-// Directory to temp store audio files for Twilio to <Play>
-const AUDIO_DIR = path.join(process.cwd(), "public", "temp-audio");
+// Temp audio folder (Vercel Serverless only allows writing to /tmp)
+const AUDIO_DIR = path.join("/tmp");
 
 /**
  * Ensures the temp-audio directory exists

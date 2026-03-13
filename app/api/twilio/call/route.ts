@@ -12,8 +12,8 @@ import { v4 as uuidv4 } from "uuid";
 const prisma = new PrismaClient();
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
-// Temp audio folder
-const AUDIO_DIR = path.join(process.cwd(), "public", "temp-audio");
+// Temp audio folder (Vercel Serverless only allows writing to /tmp)
+const AUDIO_DIR = path.join("/tmp");
 
 async function ensureAudioDir() {
     try {

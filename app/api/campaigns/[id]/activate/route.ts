@@ -10,7 +10,7 @@ import twilio from "twilio"
 import { v4 as uuidv4 } from "uuid"
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
-const AUDIO_DIR = path.join(process.cwd(), "public", "temp-audio");
+const AUDIO_DIR = path.join("/tmp");
 
 async function ensureAudioDir() {
     try {
