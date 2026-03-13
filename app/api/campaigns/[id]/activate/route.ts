@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import twilio from "twilio"
 import { requireAuth, AuthError } from "@/lib/auth"
 import { groq } from "@/lib/groq"
+import { makeOutboundCall, isIndianNumber } from "@/lib/services/exotel"
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -35,17 +36,8 @@ export async function POST(_req: Request, context: RouteContext) {
             data: { status: "ACTIVE" },
         })
 
-        // Ensure Twilio credentials exist
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+        // We'll check credentials inside the loop depending on the route needed
 
-        if (!accountSid || !authToken || !fromNumber) {
-            console.error("[Campaign Activate] Missing Twilio environment variables");
-            return NextResponse.json({ error: "Twilio credentials not configured in environment." }, { status: 500 });
-        }
-
-        const client = twilio(accountSid, authToken);
         let queuedCalls = 0;
 
         // Loop through leads and dispatch calls
@@ -126,16 +118,45 @@ export async function POST(_req: Request, context: RouteContext) {
                 // --- VOICE DISPATCH ---
                 if (campaign.type === "VOICE" || campaign.type === "BOTH" || campaign.type === "OUTBOUND") {
                     try {
-                        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-                        const authToken = process.env.TWILIO_AUTH_TOKEN;
-                        const fromNumber = process.env.TWILIO_PHONE_NUMBER;
-
                         console.log(`[Voice Dispatch] Attempting dial for lead ${lead.phone}`);
-                        console.log(`[Voice Dispatch] ENV check: accountSid=${!!accountSid}, authToken=${!!authToken}, fromNumber=${!!fromNumber}`);
+                        
+                        if (isIndianNumber(lead.phone)) {
+                            console.log(`[Voice Dispatch] Routing Indian number ${lead.phone} to Exotel...`);
+                            
+                            // EXOTEL ROUTING
+                            const webhookUrl = `${appUrl}/api/exotel/webhook`;
+                            const fromNumber = process.env.EXOTEL_VIRTUAL_NUMBER || "";
+                            
+                            if (!fromNumber || !process.env.EXOTEL_API_KEY) {
+                                console.error("[Campaign Activate] Exotel credentials missing in .env.");
+                                continue;
+                            }
 
-                        if (!accountSid || !authToken || !fromNumber) {
-                            console.error("[Campaign Activate] Missing Twilio environment variables");
+                            // Pass agentId and leadId via custom field so the webhook knows who it is
+                            const customField = JSON.stringify({ agentId: campaign.agentId, leadId: lead.id, campaignId: campaign.id });
+                            
+                            const exotelCall = await makeOutboundCall({
+                                to: lead.phone,
+                                callerId: fromNumber,
+                                webhookUrl: webhookUrl,
+                                customField: customField
+                            });
+                            console.log(`[Voice Dispatch] Exotel Call successfully queued with SID: ${exotelCall.callSid}`);
+                            queuedCalls++;
+
                         } else {
+                            console.log(`[Voice Dispatch] Routing international number ${lead.phone} to Twilio...`);
+                            
+                            // TWILIO ROUTING
+                            const accountSid = process.env.TWILIO_ACCOUNT_SID;
+                            const authToken = process.env.TWILIO_AUTH_TOKEN;
+                            const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+                            if (!accountSid || !authToken || !fromNumber) {
+                                console.error("[Campaign Activate] Missing Twilio environment variables");
+                                continue;
+                            }
+
                             const client = twilio(accountSid, authToken);
                             const twimlUrl = `${appUrl}/api/twilio/outbound?agentId=${campaign.agentId}&leadId=${lead.id}`;
                             console.log(`[Voice Dispatch] Dialing TwiML URL: ${twimlUrl}`);
@@ -146,7 +167,7 @@ export async function POST(_req: Request, context: RouteContext) {
                                 from: fromNumber,
                                 record: false
                             });
-                            console.log(`[Voice Dispatch] Call successfully queued with SID: ${call.sid}`);
+                            console.log(`[Voice Dispatch] Twilio Call successfully queued with SID: ${call.sid}`);
                             queuedCalls++;
                         }
                     } catch (e) {
