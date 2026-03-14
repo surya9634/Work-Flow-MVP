@@ -147,7 +147,7 @@ export async function processAudioWithSarvam(audioBuffer: Buffer): Promise<strin
     const formData = new FormData();
     const blob = new Blob([audioBuffer as any], { type: "audio/wav" });
     formData.append("file", blob, "audio.wav");
-    formData.append("model", "saaras:v1");
+    formData.append("model", "saaras:v2.5");
     formData.append("prompt", "");
 
     const res = await fetch(`${BASE_URL}/speech-to-text-translate`, {
