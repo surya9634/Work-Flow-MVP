@@ -20,11 +20,11 @@ const DEFAULT_SARVAM_VOICE_ID = "priya-hi";
  * VOICE RUNTIME ENGINE
  * 
  * Real implementations:
- * - STT: Groq Whisper (whisper-large-v3-turbo) — uses GROQ_API_KEY
+ * - STT: Deepgram Nova-2 — uses DEEPGRAM_API_KEY
  * - TTS: Cartesia Sonic — high-quality, low-latency cloud TTS, uses CARTESIA_API_KEY
  * - LLM: Groq (llama-3.3-70b-versatile) — uses GROQ_API_KEY
  * 
- * Pipeline: Audio In → STT (Groq Whisper) → Intent → ConvTree → LLM → TTS (Cartesia) → Audio Out
+ * Pipeline: Audio In → STT (Deepgram Nova-2) → Intent → ConvTree → LLM → TTS (Sarvam/Deepgram Aura) → Audio Out
  */
 
 export interface VoiceEvent {
@@ -82,7 +82,7 @@ export class VoiceRuntime {
     }
 
     /**
-     * REAL STT — Groq Whisper transcription.
+     * REAL STT — Deepgram Nova-2 transcription.
      * Accepts audio buffer (wav, mp3, webm, m4a, ogg).
      * Returns transcribed text.
      */
@@ -328,7 +328,7 @@ export class VoiceRuntime {
         convTree: any,
         voiceProfile: any
     ): Promise<{ text: string; audio: Buffer; intent: string; userText: string }> {
-        // 1. STT — Real Groq Whisper transcription (Skip if buffer is empty, e.g., for initial greetings)
+        // 1. STT — Deepgram Nova-2 transcription (Skip if buffer is empty, e.g., for initial greetings)
         let userText = "";
         if (audioChunk.length > 0) {
             userText = await VoiceRuntime.processAudio(audioChunk, "audio.wav");

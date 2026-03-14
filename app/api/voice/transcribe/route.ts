@@ -4,7 +4,7 @@ import { VoiceRuntime } from "@/lib/services/voice-runtime"
 
 /**
  * POST /api/voice/transcribe
- * Accept audio file → return transcribed text via Groq Whisper.
+ * Accept audio file → return transcribed text via Deepgram Nova-2.
  * 
  * Expects multipart form data with an "audio" field containing the audio file.
  */
@@ -41,8 +41,8 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
             text,
-            model: "whisper-large-v3-turbo",
-            provider: "groq",
+            model: "nova-2",
+            provider: "deepgram",
         })
     } catch (error) {
         if (error instanceof AuthError) {

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, AuthError } from "@/lib/auth"
-import Groq from "groq-sdk"
+import { processAudioWithDeepgram } from "@/lib/services/deepgram"
 import { generateSpeechWithSarvam, translateText, getVoiceById, getSarvamVoices } from "@/lib/services/sarvam"
 import { getMemoryContext } from "@/lib/services/lead-memory"
 import { runPostCallPipeline } from "@/lib/services/call-summarizer"
 import { debitCallCredits } from "@/lib/services/credits"
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+import { groq } from "@/lib/groq"
 
 const DEFAULT_VOICE_ID = "priya-hi";
 
@@ -70,20 +70,13 @@ export async function POST(req: Request) {
 
         console.log(`[Sandbox Voice] Using Sarvam voice: ${selectedVoiceId} for agent: ${agentName}`)
 
-        // ── 2. STT via Groq Whisper ─────────────────────────────
+        // ── 2. STT via Deepgram Nova-2 ──────────────────────────
         const audioBuffer = Buffer.from(await audioFile.arrayBuffer())
-        const audioAsFile = new File([new Blob([audioBuffer])], "recording.webm", { type: "audio/webm" })
 
         let userTranscript = ""
         try {
-            const transcription = await groq.audio.transcriptions.create({
-                file: audioAsFile,
-                model: "whisper-large-v3-turbo",
-                response_format: "text",
-            })
-            userTranscript = (typeof transcription === "string"
-                ? transcription
-                : (transcription as any).text || "").trim()
+            userTranscript = await processAudioWithDeepgram(audioBuffer)
+            userTranscript = userTranscript.trim()
         } catch (sttErr) {
             console.error("[Sandbox Voice] STT error:", sttErr)
             return NextResponse.json({ error: "Speech recognition failed." }, { status: 500 })
