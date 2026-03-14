@@ -140,7 +140,20 @@ export async function POST(req: NextRequest) {
                     const audioBuffer = await audioRes.arrayBuffer();
                     // Using Groq Whisper for much faster STT
                     userTranscript = await VoiceRuntime.processAudio(Buffer.from(audioBuffer), "audio.wav");
-                    console.log(`[Twilio Groq STT] User said: ${userTranscript}`);
+                    
+                    // Filter out Whisper hallucinations generated from phone static
+                    const lower = userTranscript.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const hallucinations = [
+                        "thankyou", "sorry", "you", "ok", "okay", "right", "yeah", "yes", "no", 
+                        "subtitlesby", "amaraorg", "bye", "goodbye"
+                    ];
+                    
+                    if (lower === "" || hallucinations.includes(lower)) {
+                        console.log(`[Twilio Groq STT] Hallucination detected and dropped: "${userTranscript}"`);
+                        userTranscript = "";
+                    } else {
+                        console.log(`[Twilio Groq STT] User said: ${userTranscript}`);
+                    }
                 } else {
                     const errText = await audioRes.text();
                     console.error(`[Twilio STT] Failed to fetch recording from Twilio: ${audioRes.status} ${audioRes.statusText}`, errText);
