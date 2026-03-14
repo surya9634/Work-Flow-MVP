@@ -76,6 +76,14 @@ export const VOICE_CATALOG: VoiceOption[] = [
     // { id: "abhilash-en", name: "Abhilash", shortName: "Abhilash - English",gender: "male",   category: "English", description: "Indian English, Male" },
     { id: "priya-en",    name: "Priya",    shortName: "Priya - English",   gender: "female", category: "English", description: "Indian English, Warm" },
     { id: "rahul-en",    name: "Rahul",    shortName: "Rahul - English",   gender: "male",   category: "English", description: "Indian English, Clear" },
+
+    // ─── English (US/Global - Deepgram Aura) ──────────────────────────────────
+    { id: "aura-asteria-en",    name: "Asteria",    shortName: "Asteria - English",   gender: "female", category: "English", description: "US English, Professional" },
+    { id: "aura-luna-en",       name: "Luna",       shortName: "Luna - English",      gender: "female", category: "English", description: "US English, Warm" },
+    { id: "aura-stella-en",     name: "Stella",     shortName: "Stella - English",    gender: "female", category: "English", description: "US English, Clear" },
+    { id: "aura-orion-en",      name: "Orion",      shortName: "Orion - English",     gender: "male",   category: "English", description: "US English, Clear" },
+    { id: "aura-arcas-en",      name: "Arcas",      shortName: "Arcas - English",     gender: "male",   category: "English", description: "US English, Confident" },
+    { id: "aura-perseus-en",    name: "Perseus",    shortName: "Perseus - English",   gender: "male",   category: "English", description: "US English, Professional" },
 ]
 
 export const VOICE_CATEGORIES = [

@@ -87,31 +87,12 @@ export class VoiceRuntime {
      * Returns transcribed text.
      */
     static async processAudio(audioBuffer: Buffer, filename: string = "audio.webm"): Promise<string> {
-        const tempPath = path.join(os.tmpdir(), `stt_${uuidv4()}_${filename}`);
         try {
-            // Write buffer to a real file so Groq SDK handles it perfectly without Blob encoding issues
-            fs.writeFileSync(tempPath, audioBuffer);
-
-            const transcription = await groq.audio.transcriptions.create({
-                file: fs.createReadStream(tempPath),
-                model: "whisper-large-v3-turbo",
-                language: "en",
-                response_format: "text",
-            });
-
-            // The response is the transcribed text directly
-            const text = typeof transcription === "string"
-                ? transcription
-                : (transcription as any).text || "";
-
-            return text.trim();
+            const { processAudioWithDeepgram } = await import("@/lib/services/deepgram");
+            return await processAudioWithDeepgram(audioBuffer);
         } catch (error) {
             console.error("[VoiceRuntime] STT Error:", error);
             throw new Error(`Speech-to-text failed: ${error instanceof Error ? error.message : "Unknown error"}`);
-        } finally {
-            if (fs.existsSync(tempPath)) {
-                fs.unlinkSync(tempPath);
-            }
         }
     }
 
@@ -174,6 +155,13 @@ export class VoiceRuntime {
         try {
             const voiceId = voiceProfile?.voiceId || DEFAULT_SARVAM_VOICE_ID;
             
+            // Check if voice is Deepgram Aura
+            if (voiceId.startsWith("aura-")) {
+                console.log(`[VoiceRuntime] TTS: Routing to Deepgram Aura: ${voiceId}`);
+                const { generateSpeechWithDeepgram } = await import("@/lib/services/deepgram");
+                return await generateSpeechWithDeepgram(text, voiceId);
+            }
+
             // Resolve the voice's target language from the catalogue
             const voice = getVoiceById(voiceId);
             const targetLang = voice.language;
