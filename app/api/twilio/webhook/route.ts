@@ -145,7 +145,8 @@ export async function POST(req: NextRequest) {
                     const lower = userTranscript.toLowerCase().replace(/[^a-z0-9]/g, '');
                     const hallucinations = [
                         "thankyou", "sorry", "you", "ok", "okay", "right", "yeah", "yes", "no", 
-                        "subtitlesby", "amaraorg", "bye", "goodbye"
+                        "subtitlesby", "amaraorg", "bye", "goodbye", "soletsgo", "letsgo", "my",
+                        "hello", "hi"
                     ];
                     
                     if (lower === "" || hallucinations.includes(lower)) {
