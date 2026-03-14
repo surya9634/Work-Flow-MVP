@@ -216,15 +216,9 @@ export class VoiceRuntime {
                 }
             }
 
-            // Handle the 'initial greeting' empty buffer trigger
-            if (conversationMessages.length === 0 || conversationMessages[conversationMessages.length - 1].role !== "user") {
-                if (userText && userText !== "[User picked up the phone]") {
-                    conversationMessages.push({ role: "user", content: userText });
-                } else if (userText === "[User picked up the phone]") {
-                    // Provide context that the user answered, so the AI knows to say hello
-                    conversationMessages.push({ role: "user", content: "Hello?" });
-                }
-            }
+            // Note: userText is already present at the end of conversationMessages 
+            // because the Twilio webhook appends it to the DB transcript string
+            // before calling this function.
 
             const languageInstruction = targetLanguage && targetLanguage !== 'English' 
                 ? `\n\nIMPORTANT LANGUAGE INSTRUCTION: You MUST format your response completely in ${targetLanguage}. Do not use English unless the user explicitly requests it. Your underlying language model processing happens in English, but your output text MUST be in ${targetLanguage}.`
