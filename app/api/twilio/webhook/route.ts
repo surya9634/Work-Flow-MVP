@@ -138,8 +138,9 @@ export async function POST(req: NextRequest) {
                 
                 if (audioRes.ok) {
                     const audioBuffer = await audioRes.arrayBuffer();
-                    userTranscript = await processAudioWithSarvam(Buffer.from(audioBuffer));
-                    console.log(`[Twilio STT] User said: ${userTranscript}`);
+                    // Using Groq Whisper for much faster STT
+                    userTranscript = await VoiceRuntime.processAudio(Buffer.from(audioBuffer), "audio.wav");
+                    console.log(`[Twilio Groq STT] User said: ${userTranscript}`);
                 } else {
                     const errText = await audioRes.text();
                     console.error(`[Twilio STT] Failed to fetch recording from Twilio: ${audioRes.status} ${audioRes.statusText}`, errText);
