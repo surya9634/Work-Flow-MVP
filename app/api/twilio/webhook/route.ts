@@ -125,15 +125,24 @@ export async function POST(req: NextRequest) {
             // 1. Process User Audio (STT)
             // Twilio gives us a URL to the recording. We need to fetch the .wav
             try {
-                // Twilio recordings might need HTTP Basic Auth if secure recordings is enabled,
-                // but usually the URL is public for a short time if default settings.
-                const audioRes = await fetch(recordingUrl + ".wav"); 
+                // Twilio secure recordings require HTTP Basic Auth using AccountSid and AuthToken
+                const twilioAuth = Buffer.from(
+                    `${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`
+                ).toString("base64");
+
+                const audioRes = await fetch(recordingUrl + ".wav", {
+                    headers: {
+                        Authorization: `Basic ${twilioAuth}`
+                    }
+                }); 
+                
                 if (audioRes.ok) {
                     const audioBuffer = await audioRes.arrayBuffer();
                     userTranscript = await processAudioWithSarvam(Buffer.from(audioBuffer));
                     console.log(`[Twilio STT] User said: ${userTranscript}`);
                 } else {
-                    console.error("[Twilio STT] Failed to fetch recording from Twilio:", audioRes.statusText);
+                    const errText = await audioRes.text();
+                    console.error(`[Twilio STT] Failed to fetch recording from Twilio: ${audioRes.status} ${audioRes.statusText}`, errText);
                 }
             } catch (err) {
                 console.error("[Twilio STT] Error processing audio", err);
